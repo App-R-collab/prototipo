@@ -1,11 +1,119 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Mi prototipo</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>App de Referidos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #4CAF50;
+      color: white;
+      text-align: center;
+      padding: 1em;
+    }
+    main {
+      padding: 2em;
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    .referido {
+      background: #f9f9f9;
+      margin-top: 10px;
+      padding: 10px;
+      border-left: 3px solid #4CAF50;
+    }
+  </style>
 </head>
 <body>
-  <h1>¡Hola mundo desde GitHub Pages!</h1>
-  <p>Este es mi primer sitio publicado con GitHub Pages.</p>
+  <header>
+    <h1>Registro con Referidos</h1>
+  </header>
+  <main>
+    <form id="form-registro">
+      <input type="text" id="nombre" placeholder="Nombre completo" required>
+      <input type="email" id="correo" placeholder="Correo electrónico" required>
+      <input type="text" id="codigoReferido" placeholder="Código de referido (opcional)">
+      <input type="file" id="documento" accept="image/*,application/pdf" required>
+      <button type="submit">Registrarse</button>
+    </form>
+    <div id="mensaje"></div>
+    <h3>Mis referidos</h3>
+    <div id="listaReferidos"></div>
+  </main>
+  <script>
+    // Simulación de base de datos en localStorage
+    const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+
+    function generarCodigo(nombre) {
+      return nombre.toLowerCase().replace(/\s+/g, '') + Math.floor(Math.random() * 1000);
+    }
+
+    function registrarUsuario(e) {
+      e.preventDefault();
+      const nombre = document.getElementById("nombre").value;
+      const correo = document.getElementById("correo").value;
+      const codigoReferido = document.getElementById("codigoReferido").value;
+      const documento = document.getElementById("documento").files[0];
+
+      if (!documento) return alert("Debes subir tu documento de identidad.");
+
+      const reader = new FileReader();
+      reader.onloadend = function () {
+        const codigo = generarCodigo(nombre);
+        const usuario = {
+          nombre,
+          correo,
+          documento: reader.result,
+          referidoPor: codigoReferido || null,
+          codigo,
+        };
+        usuarios.push(usuario);
+        localStorage.setItem("usuarios", JSON.stringify(usuarios));
+        mostrarMensaje("Registro exitoso. Tu código de referido es: " + codigo);
+        mostrarReferidos(codigo);
+      };
+      reader.readAsDataURL(documento);
+    }
+
+    function mostrarMensaje(texto) {
+      document.getElementById("mensaje").innerHTML = `<p>${texto}</p>`;
+    }
+
+    function mostrarReferidos(miCodigo) {
+      const lista = document.getElementById("listaReferidos");
+      lista.innerHTML = "";
+      const referidos = usuarios.filter(u => u.referidoPor === miCodigo);
+      if (referidos.length === 0) {
+        lista.innerHTML = "<p>Aún no tienes referidos.</p>";
+      } else {
+        referidos.forEach(r => {
+          lista.innerHTML += `<div class='referido'>${r.nombre} - ${r.correo}</div>`;
+        });
+      }
+    }
+
+    document.getElementById("form-registro").addEventListener("submit", registrarUsuario);
+  </script>
 </body>
 </html>
