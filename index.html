@@ -31,6 +31,7 @@
       top: 50px;
       right: 20px;
       background: white;
+      color: black;
       border: 1px solid #ccc;
       border-radius: 5px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -43,6 +44,7 @@
       padding: 10px;
       text-align: left;
       cursor: pointer;
+      color: black;
     }
     .ajustes-menu button:hover {
       background-color: #f0f0f0;
@@ -118,7 +120,7 @@
     <div class="ajustes" title="Ajustes" onclick="toggleAjustesMenu()">⚙️</div>
     <div class="ajustes-menu" id="ajustesMenu">
       <button onclick="window.location.href='ver_referidos.html'">Ver Referidos</button>
-      <button onclick="window.location.href='index.html#consultar'">Consultar Referidos</button>
+      <button onclick="mostrarModalConsulta()">Consultar Referidos</button>
       <button onclick="alert('Ajustes en construcción')">Ajustes</button>
     </div>
   </header>
@@ -144,10 +146,6 @@
       <button type="submit">Registrarse</button>
     </form>
 
-    <h3 id="consultar">Consultar Referidos y Comisiones</h3>
-    <input type="text" id="codigoConsulta" placeholder="Ingresa tu código de referido">
-    <button id="btn-consultar">Consultar</button>
-
     <div id="mensaje"></div>
     <h3>Mis referidos</h3>
     <div id="listaReferidos"></div>
@@ -165,6 +163,38 @@
     function toggleAjustesMenu() {
       const menu = document.getElementById("ajustesMenu");
       menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
+    function mostrarModalConsulta() {
+      const codigo = prompt("Ingresa tu código de referido:");
+      if (!codigo) return;
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const usuario = usuarios.find(u => u.codigo === codigo);
+      const detalle = document.getElementById("detalleReferido");
+      if (usuario) {
+        const referidos = usuarios.filter(r => r.referidoPor === codigo);
+        const comisionDirecta = referidos.length * 30000;
+        const comisionResidual = referidos.reduce((total, ref) => {
+          const subReferidos = usuarios.filter(u => u.referidoPor === ref.codigo);
+          return total + (subReferidos.length * 100);
+        }, 0);
+
+        detalle.innerHTML = `
+          <p><strong>Nombre:</strong> ${usuario.nombre}</p>
+          <p><strong>Correo:</strong> ${usuario.correo}</p>
+          <p><strong>Línea:</strong> ${usuario.linea}</p>
+          <p><strong>Referidos directos:</strong> ${referidos.length}</p>
+          <p><strong>Comisión directa:</strong> $${comisionDirecta}</p>
+          <p><strong>Ganancia residual:</strong> $${comisionResidual}</p>
+        `;
+        document.getElementById("modal").style.display = "flex";
+      } else {
+        alert("Código no encontrado");
+      }
+    }
+
+    function cerrarModal() {
+      document.getElementById("modal").style.display = "none";
     }
   </script>
 </body>
