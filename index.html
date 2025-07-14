@@ -25,6 +25,28 @@
       font-size: 20px;
       cursor: pointer;
     }
+    .ajustes-menu {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 20px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+    .ajustes-menu button {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 10px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .ajustes-menu button:hover {
+      background-color: #f0f0f0;
+    }
     main {
       padding: 2em;
       max-width: 600px;
@@ -93,7 +115,12 @@
 <body>
   <header>
     <h1>Registro con Referidos Mini The Code</h1>
-    <div class="ajustes" title="Ajustes">⚙️</div>
+    <div class="ajustes" title="Ajustes" onclick="toggleAjustesMenu()">⚙️</div>
+    <div class="ajustes-menu" id="ajustesMenu">
+      <button onclick="window.location.href='ver_referidos.html'">Ver Referidos</button>
+      <button onclick="window.location.href='index.html#consultar'">Consultar Referidos</button>
+      <button onclick="alert('Ajustes en construcción')">Ajustes</button>
+    </div>
   </header>
   <main>
     <form id="form-registro">
@@ -117,7 +144,7 @@
       <button type="submit">Registrarse</button>
     </form>
 
-    <h3>Consultar Referidos y Comisiones</h3>
+    <h3 id="consultar">Consultar Referidos y Comisiones</h3>
     <input type="text" id="codigoConsulta" placeholder="Ingresa tu código de referido">
     <button id="btn-consultar">Consultar</button>
 
@@ -135,105 +162,10 @@
   </div>
 
   <script>
-    let usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-
-    function generarCodigo(nombre) {
-      return nombre.toLowerCase().replace(/\s+/g, '') + Math.floor(Math.random() * 1000);
+    function toggleAjustesMenu() {
+      const menu = document.getElementById("ajustesMenu");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
     }
-
-    function registrarUsuario(e) {
-      e.preventDefault();
-
-      const nombre = document.getElementById("nombre").value;
-      const correo = document.getElementById("correo").value;
-      const password = document.getElementById("password").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
-      const codigoReferido = document.getElementById("codigoReferido").value;
-      const documento = document.getElementById("documento").files[0];
-      const linea = document.querySelector('input[name="linea"]:checked');
-
-      if (!documento) return alert("Debes subir tu documento de identidad.");
-      if (!linea) return alert("Debes seleccionar una línea.");
-      if (password !== confirmPassword) return alert("Las contraseñas no coinciden.");
-
-      const reader = new FileReader();
-      reader.onloadend = function () {
-        const codigo = generarCodigo(nombre);
-        const usuario = {
-          nombre,
-          correo,
-          password,
-          documento: reader.result,
-          referidoPor: codigoReferido || null,
-          linea: linea.value,
-          codigo,
-          comisiones: {
-            directas: 0,
-            residuales: 0
-          }
-        };
-
-        if (codigoReferido) {
-          const referente = usuarios.find(u => u.codigo === codigoReferido);
-          if (referente) referente.comisiones.directas += 30000;
-        }
-
-        usuarios.push(usuario);
-        localStorage.setItem("usuarios", JSON.stringify(usuarios));
-        mostrarMensaje("Registro exitoso. Tu código de referido es: " + codigo);
-        mostrarReferidos(codigo);
-        document.getElementById("form-registro").reset();
-      };
-      reader.readAsDataURL(documento);
-    }
-
-    function mostrarMensaje(texto) {
-      document.getElementById("mensaje").innerHTML = `<p>${texto}</p>`;
-    }
-
-    function mostrarReferidos(miCodigo) {
-      const lista = document.getElementById("listaReferidos");
-      lista.innerHTML = "";
-      const referidos = usuarios.filter(u => u.referidoPor === miCodigo);
-
-      if (referidos.length === 0) {
-        lista.innerHTML = "<p>Aún no tienes referidos.</p>";
-      } else {
-        referidos.forEach(r => {
-          lista.innerHTML += `<div class='referido'>${r.nombre} - ${r.correo} - ${r.linea}</div>`;
-        });
-      }
-    }
-
-    function consultarDatos() {
-      const codigo = document.getElementById("codigoConsulta").value.trim();
-      usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-      const usuario = usuarios.find(u => u.codigo === codigo);
-      if (!usuario) return alert("Código no encontrado");
-
-      const referidos = usuarios.filter(u => u.referidoPor === codigo);
-      const detalle = document.getElementById("detalleReferido");
-
-      detalle.innerHTML = `
-        <p><strong>Nombre:</strong> ${usuario.nombre}</p>
-        <p><strong>Correo:</strong> ${usuario.correo}</p>
-        <p><strong>Línea:</strong> ${usuario.linea}</p>
-        <p><strong>Comisiones Directas:</strong> $${usuario.comisiones.directas}</p>
-        <p><strong>Referidos:</strong></p>
-        <ul>
-          ${referidos.map(r => `<li>${r.nombre} - ${r.correo}</li>`).join('')}
-        </ul>
-      `;
-
-      document.getElementById("modal").style.display = "flex";
-    }
-
-    function cerrarModal() {
-      document.getElementById("modal").style.display = "none";
-    }
-
-    document.getElementById("form-registro").addEventListener("submit", registrarUsuario);
-    document.getElementById("btn-consultar").addEventListener("click", consultarDatos);
   </script>
 </body>
 </html>
