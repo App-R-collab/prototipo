@@ -18,12 +18,12 @@
       padding: 1em;
       position: relative;
     }
-    .config-icon {
+    .ajustes {
       position: absolute;
+      top: 15px;
       right: 20px;
-      top: 20px;
-      cursor: pointer;
       font-size: 20px;
+      cursor: pointer;
     }
     main {
       padding: 2em;
@@ -40,14 +40,6 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
-    .button-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .button-row button {
-      width: 100%;
-    }
     button {
       background-color: #4CAF50;
       color: white;
@@ -59,52 +51,63 @@
       padding: 10px;
       border-left: 3px solid #4CAF50;
     }
+    .lineas-btns {
+      display: flex;
+      gap: 10px;
+    }
+    .lineas-btns label {
+      flex: 1;
+      text-align: center;
+      background-color: #ddd;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .lineas-btns input[type="radio"] {
+      display: none;
+    }
+    .lineas-btns input[type="radio"]:checked + label {
+      background-color: #4CAF50;
+      color: white;
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Registro con Referidos Cripto Drive</h1>
-    <div class="config-icon" onclick="alert('Aquí irá la configuración del panel ⚙️');">⚙️</div>
+    <h1>Registro con Referidos Mini The Code</h1>
+    <div class="ajustes" title="Ajustes">⚙️</div>
   </header>
   <main>
     <form id="form-registro">
       <input type="text" id="nombre" placeholder="Nombre completo" required>
       <input type="email" id="correo" placeholder="Correo electrónico" required>
-      <input type="text" id="codigoReferido" placeholder="Código de referido (opcional)">
-      <input type="file" id="documento" accept="image/*,application/pdf" required>
-      <small>Sube tu cédula por ambas caras (PDF o imagen)</small>
-
-      <div class="button-row">
-        <button type="button" onclick="seleccionarLinea('Línea 1')" id="btnLinea1">Línea 1</button>
-        <button type="button" onclick="seleccionarLinea('Línea 2')" id="btnLinea2">Línea 2</button>
-      </div>
-      <input type="hidden" id="lineaSeleccionada" required>
-
       <input type="password" id="password" placeholder="Crea una contraseña" required>
-      <input type="password" id="confirmPassword" placeholder="Confirma la contraseña" required>
+      <input type="password" id="confirmPassword" placeholder="Confirma tu contraseña" required>
+      <input type="text" id="codigoReferido" placeholder="Código de referido (opcional)">
+      <p><strong>Sube tu cédula por ambas caras:</strong></p>
+      <input type="file" id="documento" accept="image/*,application/pdf" required>
+
+      <p><strong>Selecciona una línea:</strong></p>
+      <div class="lineas-btns">
+        <input type="radio" id="linea1" name="linea" value="Línea 1" required>
+        <label for="linea1">Línea 1</label>
+
+        <input type="radio" id="linea2" name="linea" value="Línea 2">
+        <label for="linea2">Línea 2</label>
+      </div>
 
       <button type="submit">Registrarse</button>
     </form>
-
     <div id="mensaje"></div>
     <h3>Mis referidos</h3>
     <div id="listaReferidos"></div>
   </main>
 
   <script>
-    let linea = "";
-
     const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
 
     function generarCodigo(nombre) {
       return nombre.toLowerCase().replace(/\s+/g, '') + Math.floor(Math.random() * 1000);
-    }
-
-    function seleccionarLinea(l) {
-      linea = l;
-      document.getElementById("lineaSeleccionada").value = linea;
-      document.getElementById("btnLinea1").style.backgroundColor = l === 'Línea 1' ? "#388e3c" : "#4CAF50";
-      document.getElementById("btnLinea2").style.backgroundColor = l === 'Línea 2' ? "#388e3c" : "#4CAF50";
     }
 
     function registrarUsuario(e) {
@@ -112,13 +115,14 @@
 
       const nombre = document.getElementById("nombre").value;
       const correo = document.getElementById("correo").value;
-      const codigoReferido = document.getElementById("codigoReferido").value;
-      const documento = document.getElementById("documento").files[0];
       const password = document.getElementById("password").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
+      const codigoReferido = document.getElementById("codigoReferido").value;
+      const documento = document.getElementById("documento").files[0];
+      const linea = document.querySelector('input[name="linea"]:checked');
 
       if (!documento) return alert("Debes subir tu documento de identidad.");
-      if (!linea) return alert("Debes seleccionar una línea de registro.");
+      if (!linea) return alert("Debes seleccionar una línea.");
       if (password !== confirmPassword) return alert("Las contraseñas no coinciden.");
 
       const reader = new FileReader();
@@ -127,12 +131,17 @@
         const usuario = {
           nombre,
           correo,
+          password,
           documento: reader.result,
           referidoPor: codigoReferido || null,
+          linea: linea.value,
           codigo,
-          linea,
-          password
+          comisiones: {
+            directas: 0,
+            residuales: 0
+          }
         };
+
         usuarios.push(usuario);
         localStorage.setItem("usuarios", JSON.stringify(usuarios));
         mostrarMensaje("Registro exitoso. Tu código de referido es: " + codigo);
@@ -149,11 +158,12 @@
       const lista = document.getElementById("listaReferidos");
       lista.innerHTML = "";
       const referidos = usuarios.filter(u => u.referidoPor === miCodigo);
+
       if (referidos.length === 0) {
         lista.innerHTML = "<p>Aún no tienes referidos.</p>";
       } else {
         referidos.forEach(r => {
-          lista.innerHTML += `<div class='referido'>${r.nombre} - ${r.correo} (Línea: ${r.linea})</div>`;
+          lista.innerHTML += `<div class='referido'>${r.nombre} - ${r.correo} - ${r.linea}</div>`;
         });
       }
     }
