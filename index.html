@@ -119,7 +119,7 @@
 
     <h3>Consultar Referidos y Comisiones</h3>
     <input type="text" id="codigoConsulta" placeholder="Ingresa tu código de referido">
-    <button onclick="consultarDatos()">Consultar</button>
+    <button id="btn-consultar">Consultar</button>
 
     <div id="mensaje"></div>
     <h3>Mis referidos</h3>
@@ -135,7 +135,7 @@
   </div>
 
   <script>
-    const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+    let usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
 
     function generarCodigo(nombre) {
       return nombre.toLowerCase().replace(/\s+/g, '') + Math.floor(Math.random() * 1000);
@@ -182,6 +182,7 @@
         localStorage.setItem("usuarios", JSON.stringify(usuarios));
         mostrarMensaje("Registro exitoso. Tu código de referido es: " + codigo);
         mostrarReferidos(codigo);
+        document.getElementById("form-registro").reset();
       };
       reader.readAsDataURL(documento);
     }
@@ -206,6 +207,7 @@
 
     function consultarDatos() {
       const codigo = document.getElementById("codigoConsulta").value.trim();
+      usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
       const usuario = usuarios.find(u => u.codigo === codigo);
       if (!usuario) return alert("Código no encontrado");
 
@@ -231,6 +233,7 @@
     }
 
     document.getElementById("form-registro").addEventListener("submit", registrarUsuario);
+    document.getElementById("btn-consultar").addEventListener("click", consultarDatos);
   </script>
 </body>
 </html>
