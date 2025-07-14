@@ -19,98 +19,98 @@
       padding: 15px;
       margin-bottom: 10px;
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    #modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      justify-content: center;
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      z-index: 10;
     }
-    #modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 500px;
+    .info {
+      flex-grow: 1;
+    }
+    .acciones button {
+      margin-left: 10px;
+      padding: 5px 10px;
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    }
+    .acciones button:hover {
+      background-color: #45a049;
+    }
+    .volver {
+      display: block;
+      text-align: center;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      width: fit-content;
     }
   </style>
 </head>
 <body>
   <h1>Usuarios Registrados</h1>
   <div id="contenedorUsuarios"></div>
-
-  <div id="modal">
-    <div id="modal-content">
-      <h3>Resumen de Referidos y Comisiones</h3>
-      <div id="detalleReferido"></div>
-      <button onclick="cerrarModal()">Cerrar</button>
-    </div>
-  </div>
+  <a class="volver" href="index.html">Volver</a>
 
   <script>
-    const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-    const contenedor = document.getElementById("contenedorUsuarios");
+    function cargarUsuarios() {
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const contenedor = document.getElementById("contenedorUsuarios");
+      contenedor.innerHTML = "";
 
-    if (usuarios.length === 0) {
-      contenedor.innerHTML = "<p>No hay usuarios registrados aún.</p>";
-    } else {
-      usuarios.forEach(u => {
-        contenedor.innerHTML += `
-          <div class="usuario">
-            <strong>Nombre:</strong> ${u.nombre}<br>
-            <strong>Correo:</strong> ${u.correo}<br>
-            <strong>Código:</strong> ${u.codigo}<br>
-            <strong>Referido por:</strong> ${u.referidoPor || 'Ninguno'}<br>
-            <strong>Línea:</strong> ${u.linea || 'No definida'}<br>
-          </div>
-        `;
-      });
-    }
-
-    function mostrarResumenPorCodigo(codigo) {
-      const usuario = usuarios.find(u => u.codigo === codigo);
-      const detalle = document.getElementById("detalleReferido");
-
-      if (usuario) {
-        const referidos = usuarios.filter(r => r.referidoPor === codigo);
-        const comisionDirecta = referidos.length * 30000;
-        const comisionResidual = referidos.reduce((total, ref) => {
-          const subReferidos = usuarios.filter(u => u.referidoPor === ref.codigo);
-          return total + (subReferidos.length * 100);
-        }, 0);
-
-        detalle.innerHTML = `
-          <p><strong>Nombre:</strong> ${usuario.nombre}</p>
-          <p><strong>Correo:</strong> ${usuario.correo}</p>
-          <p><strong>Línea:</strong> ${usuario.linea}</p>
-          <p><strong>Referidos directos:</strong> ${referidos.length}</p>
-          <p><strong>Comisión directa:</strong> $${comisionDirecta}</p>
-          <p><strong>Ganancia residual:</strong> $${comisionResidual}</p>
-        `;
-        document.getElementById("modal").style.display = "flex";
+      if (usuarios.length === 0) {
+        contenedor.innerHTML = "<p>No hay usuarios registrados aún.</p>";
       } else {
-        alert("Código no encontrado");
+        usuarios.forEach((u, index) => {
+          const div = document.createElement("div");
+          div.className = "usuario";
+          div.innerHTML = `
+            <div class="info">
+              <strong>Nombre:</strong> ${u.nombre}<br>
+              <strong>Correo:</strong> ${u.correo}<br>
+              <strong>Código:</strong> ${u.codigo}<br>
+              <strong>Referido por:</strong> ${u.referidoPor || 'Ninguno'}<br>
+              <strong>Línea:</strong> ${u.linea || 'No definida'}<br>
+            </div>
+            <div class="acciones">
+              <button onclick="eliminarUsuario(${index})">Eliminar</button>
+              <button onclick="modificarUsuario(${index})">Modificar</button>
+            </div>
+          `;
+          contenedor.appendChild(div);
+        });
       }
     }
 
-    function cerrarModal() {
-      document.getElementById("modal").style.display = "none";
+    function eliminarUsuario(index) {
+      if (confirm("¿Estás seguro de eliminar este usuario?")) {
+        const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+        usuarios.splice(index, 1);
+        localStorage.setItem("usuarios", JSON.stringify(usuarios));
+        cargarUsuarios();
+      }
     }
 
-    // Mostrar modal si hay código almacenado
-    window.addEventListener("DOMContentLoaded", () => {
-      const codigo = localStorage.getItem("codigoConsulta");
-      if (codigo) {
-        localStorage.removeItem("codigoConsulta");
-        mostrarResumenPorCodigo(codigo);
+    function modificarUsuario(index) {
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const usuario = usuarios[index];
+      const nuevoNombre = prompt("Modificar nombre:", usuario.nombre);
+      const nuevoCorreo = prompt("Modificar correo:", usuario.correo);
+      if (nuevoNombre && nuevoCorreo) {
+        usuario.nombre = nuevoNombre;
+        usuario.correo = nuevoCorreo;
+        usuarios[index] = usuario;
+        localStorage.setItem("usuarios", JSON.stringify(usuarios));
+        cargarUsuarios();
       }
-    });
+    }
+
+    cargarUsuarios();
   </script>
 </body>
 </html>
