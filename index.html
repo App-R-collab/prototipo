@@ -16,6 +16,14 @@
       color: white;
       text-align: center;
       padding: 1em;
+      position: relative;
+    }
+    .config-icon {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      cursor: pointer;
+      font-size: 20px;
     }
     main {
       padding: 2em;
@@ -25,12 +33,20 @@
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    input, button {
+    input, button, select {
       width: 100%;
       padding: 10px;
       margin: 8px 0;
       border: 1px solid #ccc;
       border-radius: 4px;
+    }
+    .button-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .button-row button {
+      width: 100%;
     }
     button {
       background-color: #4CAF50;
@@ -48,6 +64,7 @@
 <body>
   <header>
     <h1>Registro con Referidos Mini The Code</h1>
+    <div class="config-icon" onclick="alert('Aquí irá la configuración del panel ⚙️');">⚙️</div>
   </header>
   <main>
     <form id="form-registro">
@@ -55,28 +72,54 @@
       <input type="email" id="correo" placeholder="Correo electrónico" required>
       <input type="text" id="codigoReferido" placeholder="Código de referido (opcional)">
       <input type="file" id="documento" accept="image/*,application/pdf" required>
+      <small>Sube tu cédula por ambas caras (PDF o imagen)</small>
+
+      <div class="button-row">
+        <button type="button" onclick="seleccionarLinea('Línea 1')" id="btnLinea1">Línea 1</button>
+        <button type="button" onclick="seleccionarLinea('Línea 2')" id="btnLinea2">Línea 2</button>
+      </div>
+      <input type="hidden" id="lineaSeleccionada" required>
+
+      <input type="password" id="password" placeholder="Crea una contraseña" required>
+      <input type="password" id="confirmPassword" placeholder="Confirma la contraseña" required>
+
       <button type="submit">Registrarse</button>
     </form>
+
     <div id="mensaje"></div>
     <h3>Mis referidos</h3>
     <div id="listaReferidos"></div>
   </main>
+
   <script>
-    // Simulación de base de datos en localStorage
+    let linea = "";
+
     const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
 
     function generarCodigo(nombre) {
       return nombre.toLowerCase().replace(/\s+/g, '') + Math.floor(Math.random() * 1000);
     }
 
+    function seleccionarLinea(l) {
+      linea = l;
+      document.getElementById("lineaSeleccionada").value = linea;
+      document.getElementById("btnLinea1").style.backgroundColor = l === 'Línea 1' ? "#388e3c" : "#4CAF50";
+      document.getElementById("btnLinea2").style.backgroundColor = l === 'Línea 2' ? "#388e3c" : "#4CAF50";
+    }
+
     function registrarUsuario(e) {
       e.preventDefault();
+
       const nombre = document.getElementById("nombre").value;
       const correo = document.getElementById("correo").value;
       const codigoReferido = document.getElementById("codigoReferido").value;
       const documento = document.getElementById("documento").files[0];
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
 
       if (!documento) return alert("Debes subir tu documento de identidad.");
+      if (!linea) return alert("Debes seleccionar una línea de registro.");
+      if (password !== confirmPassword) return alert("Las contraseñas no coinciden.");
 
       const reader = new FileReader();
       reader.onloadend = function () {
@@ -87,6 +130,8 @@
           documento: reader.result,
           referidoPor: codigoReferido || null,
           codigo,
+          linea,
+          password
         };
         usuarios.push(usuario);
         localStorage.setItem("usuarios", JSON.stringify(usuarios));
@@ -108,7 +153,7 @@
         lista.innerHTML = "<p>Aún no tienes referidos.</p>";
       } else {
         referidos.forEach(r => {
-          lista.innerHTML += `<div class='referido'>${r.nombre} - ${r.correo}</div>`;
+          lista.innerHTML += `<div class='referido'>${r.nombre} - ${r.correo} (Línea: ${r.linea})</div>`;
         });
       }
     }
