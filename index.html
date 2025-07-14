@@ -120,7 +120,7 @@
     <div class="ajustes" title="Ajustes" onclick="toggleAjustesMenu()">⚙️</div>
     <div class="ajustes-menu" id="ajustesMenu">
       <button onclick="window.location.href='ver_referidos.html'">Ver Referidos</button>
-      <button onclick="mostrarModalConsulta()">Consultar Referidos</button>
+      <button onclick="consultarDesdeOtraPagina()">Consultar Referidos</button>
       <button onclick="alert('Ajustes en construcción')">Ajustes</button>
     </div>
   </header>
@@ -191,6 +191,13 @@
       } else {
         alert("Código no encontrado");
       }
+    }
+
+    function consultarDesdeOtraPagina() {
+      const codigo = prompt("Ingresa tu código de referido:");
+      if (!codigo) return;
+      localStorage.setItem("codigoConsulta", codigo);
+      window.location.href = "ver_referidos.html";
     }
 
     function cerrarModal() {
