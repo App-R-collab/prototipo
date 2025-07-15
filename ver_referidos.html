@@ -9,12 +9,10 @@
       padding: 2em;
       background-color: #f4f4f4;
     }
-
     h1 {
       text-align: center;
       color: #4CAF50;
     }
-
     .usuario {
       background: white;
       border-radius: 8px;
@@ -25,11 +23,9 @@
       justify-content: space-between;
       align-items: center;
     }
-
     .info {
       flex-grow: 1;
     }
-
     .acciones button {
       margin-left: 10px;
       padding: 5px 10px;
@@ -39,11 +35,9 @@
       color: white;
       cursor: pointer;
     }
-
     .acciones button:hover {
       background-color: #45a049;
     }
-
     .volver {
       display: block;
       text-align: center;
@@ -56,63 +50,44 @@
       text-decoration: none;
       width: fit-content;
     }
-
-    /* Árbol jerárquico */
     .tree ul {
-      padding-top: 20px;
-      position: relative;
+      padding-top: 20px; position: relative;
       transition: all 0.5s;
     }
-
     .tree li {
-      float: left;
-      text-align: center;
+      float: left; text-align: center;
       list-style-type: none;
       position: relative;
       padding: 20px 5px 0 5px;
       transition: all 0.5s;
     }
-
-    .tree li::before,
-    .tree li::after {
+    .tree li::before, .tree li::after {
       content: '';
       position: absolute;
-      top: 0;
-      right: 50%;
+      top: 0; right: 50%;
       border-top: 1px solid #ccc;
-      width: 50%;
-      height: 20px;
+      width: 50%; height: 20px;
     }
-
     .tree li::after {
-      right: auto;
-      left: 50%;
+      right: auto; left: 50%;
       border-left: 1px solid #ccc;
     }
-
-    .tree li:only-child::before,
-    .tree li:only-child::after {
+    .tree li:only-child::before, .tree li:only-child::after {
       display: none;
     }
-
     .tree li:only-child {
       padding-top: 0;
     }
-
-    .tree li:first-child::before,
-    .tree li:last-child::after {
+    .tree li:first-child::before, .tree li:last-child::after {
       border: 0 none;
     }
-
     .tree li:last-child::before {
       border-right: 1px solid #ccc;
       border-radius: 0 5px 0 0;
     }
-
     .tree li:first-child::after {
       border-radius: 5px 0 0 0;
     }
-
     .tree div {
       border: 1px solid #ccc;
       padding: 5px 10px;
@@ -122,7 +97,7 @@
       position: relative;
     }
 
-    /* Modal edición */
+    /* Modal */
     #modal-edicion {
       display: none;
       position: fixed;
@@ -133,7 +108,6 @@
       align-items: center;
       z-index: 9999;
     }
-
     #modal-edicion form {
       background: white;
       padding: 20px;
@@ -144,12 +118,10 @@
       flex-direction: column;
       gap: 10px;
     }
-
     #modal-edicion input {
       padding: 8px;
       font-size: 1em;
     }
-
     #modal-edicion button {
       padding: 8px;
       font-size: 1em;
@@ -157,12 +129,10 @@
       border-radius: 5px;
       cursor: pointer;
     }
-
     #guardarCambios {
       background-color: #4CAF50;
       color: white;
     }
-
     #cancelar {
       background-color: gray;
       color: white;
@@ -174,7 +144,7 @@
   <div id="contenedorUsuarios"></div>
   <a class="volver" href="index.html">Volver</a>
 
-  <!-- Modal de Edición -->
+  <!-- Modal -->
   <div id="modal-edicion">
     <form id="form-edicion">
       <input type="hidden" id="edit-index" />
@@ -199,7 +169,7 @@
         usuarios.forEach((u, index) => {
           const div = document.createElement("div");
           div.className = "usuario";
-          div.innerHTML = `
+          div.innerHTML = 
             <div class="info">
               <strong>Nombre:</strong> ${u.nombre}<br>
               <strong>Correo:</strong> ${u.correo}<br>
@@ -212,7 +182,7 @@
               <button onclick="eliminarUsuario(${index})">🗑 Eliminar</button>
               <button onclick="mostrarArbol(${index})">🌳 Ver Árbol</button>
             </div>
-          `;
+          ;
           contenedor.appendChild(div);
         });
       }
@@ -270,7 +240,7 @@
 
       let html = '<ul>';
       hijos.forEach(hijo => {
-        html += `<li><div>${hijo.nombre}</div>`;
+        html += <li><div>${hijo.nombre}</div>;
         html += construirArbol(hijo.codigo);
         html += '</li>';
       });
@@ -281,7 +251,7 @@
     function mostrarArbol(index) {
       const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
       const usuario = usuarios[index];
-      const html = `
+      const html = 
         <div class="tree">
           <ul>
             <li><div>${usuario.nombre}</div>
@@ -289,7 +259,7 @@
             </li>
           </ul>
         </div>
-      `;
+      ;
 
       const modal = document.createElement("div");
       modal.style.position = "fixed";
@@ -302,9 +272,19 @@
       modal.style.alignItems = "center";
       modal.style.justifyContent = "center";
       modal.style.zIndex = "9999";
-      modal.innerHTML = `
+      modal.innerHTML = 
         <div style="background: white; padding: 20px; border-radius: 10px; max-height: 80vh; overflow-y: auto; width: 95%; max-width: 600px;">
           <h3>Árbol de ${usuario.nombre}</h3>
           ${html}
           <br>
-          <button onclick="document.body.removeChild(this.parentElement.parentElement)" style="margin-top: 10px; background-color: #e74c3c; color: white; padding: 10px 20p
+          <button onclick="document.body.removeChild(this.parentElement.parentElement)" style="margin-top: 10px; background-color: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 5px;">Cerrar</button>
+        </div>
+      ;
+
+      document.body.appendChild(modal);
+    }
+
+    cargarUsuarios();
+  </script>
+</body>
+</html>
