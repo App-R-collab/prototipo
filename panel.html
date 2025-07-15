@@ -28,7 +28,7 @@
     }
 
     main {
-      max-width: 600px;
+      max-width: 700px;
       margin: auto;
       background: white;
       margin-top: 2rem;
@@ -37,7 +37,7 @@
       box-shadow: 0 2px 10px var(--sombra);
     }
 
-    h2 {
+    h2, h3 {
       margin-top: 0;
     }
 
@@ -47,7 +47,7 @@
 
     .dato strong {
       display: inline-block;
-      width: 140px;
+      width: 160px;
     }
 
     .referido {
@@ -56,6 +56,28 @@
       border-left: 4px solid var(--verde);
       margin: 8px 0;
       border-radius: 8px;
+    }
+
+    .linea-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .linea-col {
+      flex: 1;
+      min-width: 300px;
+      background-color: #f9f9f9;
+      border: 1px solid var(--gris);
+      padding: 1rem;
+      border-radius: 10px;
+    }
+
+    .linea-col h4 {
+      margin-top: 0;
+      color: var(--verde);
+      border-bottom: 1px solid var(--gris);
+      padding-bottom: 0.5rem;
     }
 
     button {
@@ -87,7 +109,16 @@
     <div class="dato"><strong>Comisión Residual:</strong> $<span id="comisionResidual"></span></div>
 
     <h3>Referidos Directos</h3>
-    <div id="listaReferidos"></div>
+    <div class="linea-container">
+      <div class="linea-col">
+        <h4>Línea 1</h4>
+        <div id="referidosLinea1"></div>
+      </div>
+      <div class="linea-col">
+        <h4>Línea 2</h4>
+        <div id="referidosLinea2"></div>
+      </div>
+    </div>
 
     <button onclick="cerrarSesion()">Cerrar sesión</button>
   </main>
@@ -97,16 +128,16 @@
     const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
 
     if (!usuario) {
-      window.location.href = "index.html"; // Si no está logueado, redirigir
+      window.location.href = "index.html"; // Redirigir si no está logueado
     }
 
-    // Mostrar datos básicos
+    // Mostrar datos del usuario logueado
     document.getElementById("nombreUsuario").textContent = usuario.nombre;
     document.getElementById("correoUsuario").textContent = usuario.correo;
     document.getElementById("codigoUsuario").textContent = usuario.codigo;
     document.getElementById("lineaUsuario").textContent = usuario.linea;
 
-    // Obtener referidos
+    // Obtener referidos directos
     const referidos = usuarios.filter(u => u.referidoPor === usuario.codigo);
     document.getElementById("numReferidos").textContent = referidos.length;
     document.getElementById("comisionDirecta").textContent = referidos.length * 30000;
@@ -119,13 +150,19 @@
     });
     document.getElementById("comisionResidual").textContent = residual;
 
-    // Mostrar referidos
-    const lista = document.getElementById("listaReferidos");
+    // Mostrar referidos por línea
+    const contLinea1 = document.getElementById("referidosLinea1");
+    const contLinea2 = document.getElementById("referidosLinea2");
+
     referidos.forEach(r => {
       const div = document.createElement("div");
       div.className = "referido";
       div.innerHTML = `<strong>${r.nombre}</strong><br><small>${r.correo}</small>`;
-      lista.appendChild(div);
+      if (r.linea === "Línea 1") {
+        contLinea1.appendChild(div);
+      } else if (r.linea === "Línea 2") {
+        contLinea2.appendChild(div);
+      }
     });
 
     function cerrarSesion() {
