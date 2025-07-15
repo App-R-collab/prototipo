@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Usuarios Registrados - Admin</title>
-  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Ver Referidos</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,22 +13,6 @@
     h1 {
       text-align: center;
       color: #4CAF50;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .top-bar button, .top-bar input[type="file"] {
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      background-color: #4CAF50;
-      color: white;
-      cursor: pointer;
     }
 
     .usuario {
@@ -73,19 +56,136 @@
       text-decoration: none;
       width: fit-content;
     }
+
+    /* Árbol jerárquico */
+    .tree ul {
+      padding-top: 20px;
+      position: relative;
+      transition: all 0.5s;
+    }
+
+    .tree li {
+      float: left;
+      text-align: center;
+      list-style-type: none;
+      position: relative;
+      padding: 20px 5px 0 5px;
+      transition: all 0.5s;
+    }
+
+    .tree li::before,
+    .tree li::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 50%;
+      border-top: 1px solid #ccc;
+      width: 50%;
+      height: 20px;
+    }
+
+    .tree li::after {
+      right: auto;
+      left: 50%;
+      border-left: 1px solid #ccc;
+    }
+
+    .tree li:only-child::before,
+    .tree li:only-child::after {
+      display: none;
+    }
+
+    .tree li:only-child {
+      padding-top: 0;
+    }
+
+    .tree li:first-child::before,
+    .tree li:last-child::after {
+      border: 0 none;
+    }
+
+    .tree li:last-child::before {
+      border-right: 1px solid #ccc;
+      border-radius: 0 5px 0 0;
+    }
+
+    .tree li:first-child::after {
+      border-radius: 5px 0 0 0;
+    }
+
+    .tree div {
+      border: 1px solid #ccc;
+      padding: 5px 10px;
+      display: inline-block;
+      border-radius: 5px;
+      background: white;
+      position: relative;
+    }
+
+    /* Modal edición */
+    #modal-edicion {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    #modal-edicion form {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #modal-edicion input {
+      padding: 8px;
+      font-size: 1em;
+    }
+
+    #modal-edicion button {
+      padding: 8px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #guardarCambios {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    #cancelar {
+      background-color: gray;
+      color: white;
+    }
   </style>
 </head>
 <body>
   <h1>Usuarios Registrados</h1>
-
-  <div class="top-bar">
-    <button onclick="exportarAExcel()">📤 Exportar a Excel</button>
-    <label for="archivoExcel" style="cursor: pointer;">📥 Importar Excel</label>
-    <input type="file" id="archivoExcel" accept=".xlsx, .xls" style="display: none;" onchange="importarDesdeExcel(event)" />
-  </div>
-
   <div id="contenedorUsuarios"></div>
   <a class="volver" href="index.html">Volver</a>
+
+  <!-- Modal de Edición -->
+  <div id="modal-edicion">
+    <form id="form-edicion">
+      <input type="hidden" id="edit-index" />
+      <input type="text" id="edit-nombre" placeholder="Nombre completo" required />
+      <input type="email" id="edit-correo" placeholder="Correo electrónico" required />
+      <input type="password" id="edit-password" placeholder="Contraseña" required />
+      <input type="text" id="edit-linea" placeholder="Línea" required />
+      <button id="guardarCambios" type="submit">Guardar cambios</button>
+      <button id="cancelar" type="button" onclick="cerrarModalEdicion()">Cancelar</button>
+    </form>
+  </div>
 
   <script>
     function cargarUsuarios() {
@@ -108,7 +208,9 @@
               <strong>Línea:</strong> ${u.linea || 'No definida'}<br>
             </div>
             <div class="acciones">
+              <button onclick="abrirModalEdicion(${index})">✏️ Modificar</button>
               <button onclick="eliminarUsuario(${index})">🗑 Eliminar</button>
+              <button onclick="mostrarArbol(${index})">🌳 Ver Árbol</button>
             </div>
           `;
           contenedor.appendChild(div);
@@ -125,54 +227,84 @@
       }
     }
 
-    function exportarAExcel() {
+    function abrirModalEdicion(index) {
       const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-      if (usuarios.length === 0) {
-        alert("No hay datos para exportar.");
-        return;
-      }
-
-      const worksheet = XLSX.utils.json_to_sheet(usuarios);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Usuarios");
-
-      XLSX.writeFile(workbook, "usuarios_exportados.xlsx");
+      const u = usuarios[index];
+      document.getElementById("edit-index").value = index;
+      document.getElementById("edit-nombre").value = u.nombre;
+      document.getElementById("edit-correo").value = u.correo;
+      document.getElementById("edit-password").value = u.password || "";
+      document.getElementById("edit-linea").value = u.linea || "";
+      document.getElementById("modal-edicion").style.display = "flex";
     }
 
-    function importarDesdeExcel(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet);
-
-        if (!Array.isArray(json) || json.length === 0) {
-          alert("El archivo no contiene datos válidos.");
-          return;
-        }
-
-        // Validar que tenga campos esperados
-        const camposEsperados = ["nombre", "correo", "codigo", "referidoPor", "linea"];
-        const valido = camposEsperados.every(campo => Object.keys(json[0]).includes(campo));
-
-        if (!valido) {
-          alert("El archivo debe contener las columnas: nombre, correo, codigo, referidoPor, linea.");
-          return;
-        }
-
-        localStorage.setItem("usuarios", JSON.stringify(json));
-        cargarUsuarios();
-        alert("Datos actualizados desde Excel.");
-      };
-
-      reader.readAsArrayBuffer(file);
+    function cerrarModalEdicion() {
+      document.getElementById("modal-edicion").style.display = "none";
     }
 
-    cargarUsuarios();
-  </script>
-</body>
-</html>
+    document.getElementById("form-edicion").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const index = parseInt(document.getElementById("edit-index").value);
+      const nombre = document.getElementById("edit-nombre").value.trim();
+      const correo = document.getElementById("edit-correo").value.trim();
+      const password = document.getElementById("edit-password").value;
+      const linea = document.getElementById("edit-linea").value.trim();
+
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      if (!usuarios[index]) return alert("Error interno");
+
+      usuarios[index].nombre = nombre;
+      usuarios[index].correo = correo;
+      usuarios[index].password = password;
+      usuarios[index].linea = linea;
+
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+      cerrarModalEdicion();
+      cargarUsuarios();
+    });
+
+    function construirArbol(codigo) {
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const hijos = usuarios.filter(u => u.referidoPor === codigo);
+      if (!hijos.length) return '';
+
+      let html = '<ul>';
+      hijos.forEach(hijo => {
+        html += `<li><div>${hijo.nombre}</div>`;
+        html += construirArbol(hijo.codigo);
+        html += '</li>';
+      });
+      html += '</ul>';
+      return html;
+    }
+
+    function mostrarArbol(index) {
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const usuario = usuarios[index];
+      const html = `
+        <div class="tree">
+          <ul>
+            <li><div>${usuario.nombre}</div>
+              ${construirArbol(usuario.codigo)}
+            </li>
+          </ul>
+        </div>
+      `;
+
+      const modal = document.createElement("div");
+      modal.style.position = "fixed";
+      modal.style.top = 0;
+      modal.style.left = 0;
+      modal.style.width = "100%";
+      modal.style.height = "100%";
+      modal.style.backgroundColor = "rgba(0,0,0,0.5)";
+      modal.style.display = "flex";
+      modal.style.alignItems = "center";
+      modal.style.justifyContent = "center";
+      modal.style.zIndex = "9999";
+      modal.innerHTML = `
+        <div style="background: white; padding: 20px; border-radius: 10px; max-height: 80vh; overflow-y: auto; width: 95%; max-width: 600px;">
+          <h3>Árbol de ${usuario.nombre}</h3>
+          ${html}
+          <br>
+          <button onclick="document.body.removeChild(this.parentElement.parentElement)" style="margin-top: 10px; background-color: #e74c3c; color: white; padding: 10px 20p
