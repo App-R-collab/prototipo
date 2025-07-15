@@ -249,6 +249,47 @@
     function cerrarModal() {
       document.getElementById("modal").style.display = "none";
     }
+
+    // 👉 Agregado: Guardar datos del formulario en localStorage
+    document.getElementById("form-registro").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const nombre = document.getElementById("nombre").value.trim();
+      const correo = document.getElementById("correo").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const codigoReferido = document.getElementById("codigoReferido").value.trim();
+      const linea = document.querySelector('input[name="linea"]:checked')?.value;
+
+      if (password !== confirmPassword) {
+        alert("Las contraseñas no coinciden.");
+        return;
+      }
+
+      const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+      const usuario = {
+        nombre,
+        correo,
+        password,
+        codigo,
+        referidoPor: codigoReferido || null,
+        linea,
+      };
+
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+
+      if (usuarios.find(u => u.correo === correo)) {
+        alert("Este correo ya está registrado.");
+        return;
+      }
+
+      usuarios.push(usuario);
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+      alert(`Registro exitoso. Tu código de referido es: ${codigo}`);
+      this.reset();
+    });
   </script>
 </body>
 </html>
