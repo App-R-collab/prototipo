@@ -1,130 +1,175 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Administrador - Usuarios</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Usuarios Registrados - Admin</title>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 1rem;
+      padding: 2em;
       background-color: #f4f4f4;
     }
+
     h1 {
       text-align: center;
-      color: #2c3e50;
+      color: #4CAF50;
     }
-    .acciones-superiores {
+
+    .top-bar {
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
+      justify-content: center;
       gap: 10px;
+      margin-bottom: 20px;
     }
-    button, input[type="file"] {
+
+    .top-bar button, .top-bar input[type="file"] {
       padding: 10px;
       border: none;
       border-radius: 5px;
-      background-color: #3498db;
+      background-color: #4CAF50;
       color: white;
       cursor: pointer;
     }
-    button:hover {
-      background-color: #2980b9;
+
+    .usuario {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: white;
+
+    .info {
+      flex-grow: 1;
     }
-    th, td {
-      padding: 12px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #2c3e50;
+
+    .acciones button {
+      margin-left: 10px;
+      padding: 5px 10px;
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 4px;
       color: white;
+      cursor: pointer;
+    }
+
+    .acciones button:hover {
+      background-color: #45a049;
+    }
+
+    .volver {
+      display: block;
+      text-align: center;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      width: fit-content;
     }
   </style>
 </head>
 <body>
-  <h1>Panel de Administración</h1>
+  <h1>Usuarios Registrados</h1>
 
-  <div class="acciones-superiores">
-    <button onclick="exportarExcel()">📥 Exportar a Excel</button>
-    <label>
-      📤 Subir Excel
-      <input type="file" onchange="importarExcel(event)" style="display: none;" />
-    </label>
+  <div class="top-bar">
+    <button onclick="exportarAExcel()">📤 Exportar a Excel</button>
+    <label for="archivoExcel" style="cursor: pointer;">📥 Importar Excel</label>
+    <input type="file" id="archivoExcel" accept=".xlsx, .xls" style="display: none;" onchange="importarDesdeExcel(event)" />
   </div>
 
-  <table id="tablaUsuarios">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Correo</th>
-        <th>Contraseña</th>
-        <th>Código</th>
-        <th>Referido Por</th>
-        <th>Línea</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div id="contenedorUsuarios"></div>
+  <a class="volver" href="index.html">Volver</a>
 
   <script>
     function cargarUsuarios() {
       const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-      const tbody = document.querySelector("#tablaUsuarios tbody");
-      tbody.innerHTML = "";
-      usuarios.forEach(u => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${u.nombre}</td>
-          <td>${u.correo}</td>
-          <td>${u.password || ''}</td>
-          <td>${u.codigo}</td>
-          <td>${u.referidoPor || ''}</td>
-          <td>${u.linea || ''}</td>
-        `;
-        tbody.appendChild(row);
-      });
+      const contenedor = document.getElementById("contenedorUsuarios");
+      contenedor.innerHTML = "";
+
+      if (usuarios.length === 0) {
+        contenedor.innerHTML = "<p>No hay usuarios registrados aún.</p>";
+      } else {
+        usuarios.forEach((u, index) => {
+          const div = document.createElement("div");
+          div.className = "usuario";
+          div.innerHTML = `
+            <div class="info">
+              <strong>Nombre:</strong> ${u.nombre}<br>
+              <strong>Correo:</strong> ${u.correo}<br>
+              <strong>Código:</strong> ${u.codigo}<br>
+              <strong>Referido por:</strong> ${u.referidoPor || 'Ninguno'}<br>
+              <strong>Línea:</strong> ${u.linea || 'No definida'}<br>
+            </div>
+            <div class="acciones">
+              <button onclick="eliminarUsuario(${index})">🗑 Eliminar</button>
+            </div>
+          `;
+          contenedor.appendChild(div);
+        });
+      }
     }
 
-    function exportarExcel() {
+    function eliminarUsuario(index) {
+      if (confirm("¿Estás seguro de eliminar este usuario?")) {
+        const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+        usuarios.splice(index, 1);
+        localStorage.setItem("usuarios", JSON.stringify(usuarios));
+        cargarUsuarios();
+      }
+    }
+
+    function exportarAExcel() {
       const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-      const ws = XLSX.utils.json_to_sheet(usuarios);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Usuarios");
-      XLSX.writeFile(wb, "usuarios.xlsx");
+      if (usuarios.length === 0) {
+        alert("No hay datos para exportar.");
+        return;
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(usuarios);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Usuarios");
+
+      XLSX.writeFile(workbook, "usuarios_exportados.xlsx");
     }
 
-    function importarExcel(event) {
+    function importarDesdeExcel(event) {
       const file = event.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
       reader.onload = function(e) {
         const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet);
 
-        const actuales = JSON.parse(localStorage.getItem("usuarios") || "[]");
-        const combinados = combinarUsuarios(actuales, rows);
-        localStorage.setItem("usuarios", JSON.stringify(combinados));
+        if (!Array.isArray(json) || json.length === 0) {
+          alert("El archivo no contiene datos válidos.");
+          return;
+        }
+
+        // Validar que tenga campos esperados
+        const camposEsperados = ["nombre", "correo", "codigo", "referidoPor", "linea"];
+        const valido = camposEsperados.every(campo => Object.keys(json[0]).includes(campo));
+
+        if (!valido) {
+          alert("El archivo debe contener las columnas: nombre, correo, codigo, referidoPor, linea.");
+          return;
+        }
+
+        localStorage.setItem("usuarios", JSON.stringify(json));
         cargarUsuarios();
-        alert("Usuarios importados y combinados correctamente.");
+        alert("Datos actualizados desde Excel.");
       };
-      reader.readAsArrayBuffer(file);
-    }
 
-    function combinarUsuarios(actuales, nuevos) {
-      const map = new Map();
-      actuales.forEach(u => map.set(u.codigo, u));
-      nuevos.forEach(nuevo => map.set(nuevo.codigo, { ...map.get(nuevo.codigo), ...nuevo }));
-      return Array.from(map.values());
+      reader.readAsArrayBuffer(file);
     }
 
     cargarUsuarios();
