@@ -1,12 +1,153 @@
-<script>
-  function cargarUsuarios() {
-    const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-    const contenedor = document.getElementById("contenedorUsuarios");
-    contenedor.innerHTML = "";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ver Referidos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2em;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    .usuario {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .info {
+      flex-grow: 1;
+      min-width: 250px;
+    }
+    .acciones button {
+      margin: 5px;
+      padding: 5px 10px;
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    }
+    .acciones button:hover {
+      background-color: #45a049;
+    }
+    .volver {
+      display: block;
+      text-align: center;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      width: fit-content;
+    }
+    .exportar {
+      display: block;
+      margin: 0 auto 20px auto;
+      padding: 10px 20px;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      text-align: center;
+      cursor: pointer;
+    }
 
-    if (usuarios.length === 0) {
-      contenedor.innerHTML = "<p>No hay usuarios registrados aún.</p>";
-    } else {
+    /* Modal estilos */
+    #modal-edicion {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #modal-edicion form {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tree ul {
+      padding-top: 20px; position: relative;
+    }
+    .tree li {
+      float: left; text-align: center;
+      list-style-type: none;
+      position: relative;
+      padding: 20px 5px 0 5px;
+    }
+    .tree li::before, .tree li::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 50%;
+      border-top: 1px solid #ccc;
+      width: 50%; height: 20px;
+    }
+    .tree li::after {
+      right: auto; left: 50%;
+      border-left: 1px solid #ccc;
+    }
+    .tree li:only-child::before, .tree li:only-child::after {
+      display: none;
+    }
+    .tree div {
+      border: 1px solid #ccc;
+      padding: 5px 10px;
+      display: inline-block;
+      border-radius: 5px;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Usuarios Registrados</h1>
+  <button class="exportar" onclick="exportarAExcel()">📤 Exportar a Excel</button>
+  <div id="contenedorUsuarios"></div>
+  <a class="volver" href="index.html">Volver</a>
+
+  <!-- Modal de edición -->
+  <div id="modal-edicion">
+    <form id="form-edicion">
+      <input type="hidden" id="edit-index" />
+      <input type="text" id="edit-nombre" placeholder="Nombre completo" required />
+      <input type="email" id="edit-correo" placeholder="Correo electrónico" required />
+      <input type="password" id="edit-password" placeholder="Contraseña" required />
+      <input type="text" id="edit-linea" placeholder="Línea" required />
+      <button type="submit">Guardar cambios</button>
+      <button type="button" onclick="cerrarModalEdicion()">Cancelar</button>
+    </form>
+  </div>
+
+  <script>
+    function cargarUsuarios() {
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const contenedor = document.getElementById("contenedorUsuarios");
+      contenedor.innerHTML = "";
+
+      if (usuarios.length === 0) {
+        contenedor.innerHTML = "<p>No hay usuarios registrados aún.</p>";
+        return;
+      }
+
       usuarios.forEach((u, index) => {
         const div = document.createElement("div");
         div.className = "usuario";
@@ -27,104 +168,113 @@
         contenedor.appendChild(div);
       });
     }
-  }
 
-  function eliminarUsuario(index) {
-    if (confirm("¿Estás seguro de eliminar este usuario?")) {
+    function abrirModalEdicion(index) {
       const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-      usuarios.splice(index, 1);
-      localStorage.setItem("usuarios", JSON.stringify(usuarios));
-      cargarUsuarios();
+      const u = usuarios[index];
+      document.getElementById("edit-index").value = index;
+      document.getElementById("edit-nombre").value = u.nombre;
+      document.getElementById("edit-correo").value = u.correo;
+      document.getElementById("edit-password").value = u.password || "";
+      document.getElementById("edit-linea").value = u.linea || "";
+      document.getElementById("modal-edicion").style.display = "flex";
     }
-  }
 
-  function abrirModalEdicion(index) {
-    const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-    const u = usuarios[index];
-    document.getElementById("edit-index").value = index;
-    document.getElementById("edit-nombre").value = u.nombre;
-    document.getElementById("edit-correo").value = u.correo;
-    document.getElementById("edit-password").value = u.password || "";
-    document.getElementById("edit-linea").value = u.linea || "";
-    document.getElementById("modal-edicion").style.display = "flex";
-  }
+    function cerrarModalEdicion() {
+      document.getElementById("modal-edicion").style.display = "none";
+    }
 
-  function cerrarModalEdicion() {
-    document.getElementById("modal-edicion").style.display = "none";
-  }
+    document.getElementById("form-edicion").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const index = parseInt(document.getElementById("edit-index").value);
+      const nombre = document.getElementById("edit-nombre").value.trim();
+      const correo = document.getElementById("edit-correo").value.trim();
+      const password = document.getElementById("edit-password").value;
+      const linea = document.getElementById("edit-linea").value.trim();
 
-  document.getElementById("form-edicion").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const index = parseInt(document.getElementById("edit-index").value);
-    const nombre = document.getElementById("edit-nombre").value.trim();
-    const correo = document.getElementById("edit-correo").value.trim();
-    const password = document.getElementById("edit-password").value;
-    const linea = document.getElementById("edit-linea").value.trim();
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      usuarios[index] = { ...usuarios[index], nombre, correo, password, linea };
 
-    const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-    if (!usuarios[index]) return alert("Error interno");
-
-    usuarios[index].nombre = nombre;
-    usuarios[index].correo = correo;
-    usuarios[index].password = password;
-    usuarios[index].linea = linea;
-
-    localStorage.setItem("usuarios", JSON.stringify(usuarios));
-    cerrarModalEdicion();
-    cargarUsuarios();
-  });
-
-  function construirArbol(codigo) {
-    const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-    const hijos = usuarios.filter(u => u.referidoPor === codigo);
-    if (!hijos.length) return '';
-
-    let html = '<ul>';
-    hijos.forEach(hijo => {
-      html += `<li><div>${hijo.nombre}</div>`;
-      html += construirArbol(hijo.codigo);
-      html += '</li>';
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+      cerrarModalEdicion();
+      cargarUsuarios();
     });
-    html += '</ul>';
-    return html;
-  }
 
-  function mostrarArbol(index) {
-    const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-    const usuario = usuarios[index];
-    const html = `
-      <div class="tree">
-        <ul>
-          <li><div>${usuario.nombre}</div>
-            ${construirArbol(usuario.codigo)}
-          </li>
-        </ul>
-      </div>
-    `;
+    function eliminarUsuario(index) {
+      if (confirm("¿Estás seguro de eliminar este usuario?")) {
+        const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+        usuarios.splice(index, 1);
+        localStorage.setItem("usuarios", JSON.stringify(usuarios));
+        cargarUsuarios();
+      }
+    }
 
-    const modal = document.createElement("div");
-    modal.style.position = "fixed";
-    modal.style.top = 0;
-    modal.style.left = 0;
-    modal.style.width = "100%";
-    modal.style.height = "100%";
-    modal.style.backgroundColor = "rgba(0,0,0,0.5)";
-    modal.style.display = "flex";
-    modal.style.alignItems = "center";
-    modal.style.justifyContent = "center";
-    modal.style.zIndex = "9999";
+    function construirArbol(codigo) {
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const hijos = usuarios.filter(u => u.referidoPor === codigo);
+      if (!hijos.length) return '';
 
-    modal.innerHTML = `
-      <div style="background: white; padding: 20px; border-radius: 10px; max-height: 80vh; overflow-y: auto; width: 95%; max-width: 600px;">
-        <h3>Árbol de ${usuario.nombre}</h3>
-        ${html}
-        <br>
-        <button onclick="document.body.removeChild(this.parentElement.parentElement)" style="margin-top: 10px; background-color: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 5px;">Cerrar</button>
-      </div>
-    `;
+      let html = '<ul>';
+      hijos.forEach(hijo => {
+        html += `<li><div>${hijo.nombre}</div>`;
+        html += construirArbol(hijo.codigo);
+        html += '</li>';
+      });
+      html += '</ul>';
+      return html;
+    }
 
-    document.body.appendChild(modal);
-  }
+    function mostrarArbol(index) {
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const usuario = usuarios[index];
+      const html = `
+        <div class="tree">
+          <ul>
+            <li><div>${usuario.nombre}</div>
+              ${construirArbol(usuario.codigo)}
+            </li>
+          </ul>
+        </div>
+      `;
 
-  cargarUsuarios();
-</script>
+      const modal = document.createElement("div");
+      modal.style.position = "fixed";
+      modal.style.top = 0;
+      modal.style.left = 0;
+      modal.style.width = "100%";
+      modal.style.height = "100%";
+      modal.style.backgroundColor = "rgba(0,0,0,0.5)";
+      modal.style.display = "flex";
+      modal.style.alignItems = "center";
+      modal.style.justifyContent = "center";
+      modal.style.zIndex = "9999";
+      modal.innerHTML = `
+        <div style="background: white; padding: 20px; border-radius: 10px; max-height: 80vh; overflow-y: auto; width: 95%; max-width: 600px;">
+          <h3>Árbol de ${usuario.nombre}</h3>
+          ${html}
+          <br>
+          <button onclick="document.body.removeChild(this.parentElement.parentElement)" style="margin-top: 10px; background-color: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 5px;">Cerrar</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    function exportarAExcel() {
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      let csv = 'Nombre,Correo,Código,ReferidoPor,Línea\n';
+      usuarios.forEach(u => {
+        csv += `"${u.nombre}","${u.correo}","${u.codigo}","${u.referidoPor || ''}","${u.linea || ''}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "usuarios.csv";
+      link.click();
+    }
+
+    // Inicializar
+    cargarUsuarios();
+  </script>
+</body>
+</html>
