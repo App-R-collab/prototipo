@@ -2,286 +2,129 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Ver Referidos</title>
+  <title>Administrador - Usuarios</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 2em;
+      padding: 1rem;
       background-color: #f4f4f4;
     }
     h1 {
       text-align: center;
-      color: #4CAF50;
+      color: #2c3e50;
     }
-    .usuario {
-      background: white;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 10px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    .acciones-superiores {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-    }
-    .info {
-      flex-grow: 1;
-    }
-    .acciones button {
-      margin-left: 10px;
-      padding: 5px 10px;
-      background-color: #4CAF50;
-      border: none;
-      border-radius: 4px;
-      color: white;
-      cursor: pointer;
-    }
-    .acciones button:hover {
-      background-color: #45a049;
-    }
-    .volver {
-      display: block;
-      text-align: center;
-      margin: 20px auto;
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      text-decoration: none;
-      width: fit-content;
-    }
-    .tree ul {
-      padding-top: 20px; position: relative;
-      transition: all 0.5s;
-    }
-    .tree li {
-      float: left; text-align: center;
-      list-style-type: none;
-      position: relative;
-      padding: 20px 5px 0 5px;
-      transition: all 0.5s;
-    }
-    .tree li::before, .tree li::after {
-      content: '';
-      position: absolute;
-      top: 0; right: 50%;
-      border-top: 1px solid #ccc;
-      width: 50%; height: 20px;
-    }
-    .tree li::after {
-      right: auto; left: 50%;
-      border-left: 1px solid #ccc;
-    }
-    .tree li:only-child::before, .tree li:only-child::after {
-      display: none;
-    }
-    .tree li:only-child {
-      padding-top: 0;
-    }
-    .tree li:first-child::before, .tree li:last-child::after {
-      border: 0 none;
-    }
-    .tree li:last-child::before {
-      border-right: 1px solid #ccc;
-      border-radius: 0 5px 0 0;
-    }
-    .tree li:first-child::after {
-      border-radius: 5px 0 0 0;
-    }
-    .tree div {
-      border: 1px solid #ccc;
-      padding: 5px 10px;
-      display: inline-block;
-      border-radius: 5px;
-      background: white;
-      position: relative;
-    }
-
-    /* Modal */
-    #modal-edicion {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-    #modal-edicion form {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 400px;
-      display: flex;
-      flex-direction: column;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
       gap: 10px;
     }
-    #modal-edicion input {
-      padding: 8px;
-      font-size: 1em;
-    }
-    #modal-edicion button {
-      padding: 8px;
-      font-size: 1em;
+    button, input[type="file"] {
+      padding: 10px;
       border: none;
       border-radius: 5px;
+      background-color: #3498db;
+      color: white;
       cursor: pointer;
     }
-    #guardarCambios {
-      background-color: #4CAF50;
-      color: white;
+    button:hover {
+      background-color: #2980b9;
     }
-    #cancelar {
-      background-color: gray;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #2c3e50;
       color: white;
     }
   </style>
 </head>
 <body>
-  <h1>Usuarios Registrados</h1>
-  <div id="contenedorUsuarios"></div>
-  <a class="volver" href="index.html">Volver</a>
+  <h1>Panel de Administración</h1>
 
-  <!-- Modal -->
-  <div id="modal-edicion">
-    <form id="form-edicion">
-      <input type="hidden" id="edit-index" />
-      <input type="text" id="edit-nombre" placeholder="Nombre completo" required />
-      <input type="email" id="edit-correo" placeholder="Correo electrónico" required />
-      <input type="password" id="edit-password" placeholder="Contraseña" required />
-      <input type="text" id="edit-linea" placeholder="Línea" required />
-      <button id="guardarCambios" type="submit">Guardar cambios</button>
-      <button id="cancelar" type="button" onclick="cerrarModalEdicion()">Cancelar</button>
-    </form>
+  <div class="acciones-superiores">
+    <button onclick="exportarExcel()">📥 Exportar a Excel</button>
+    <label>
+      📤 Subir Excel
+      <input type="file" onchange="importarExcel(event)" style="display: none;" />
+    </label>
   </div>
+
+  <table id="tablaUsuarios">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Contraseña</th>
+        <th>Código</th>
+        <th>Referido Por</th>
+        <th>Línea</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script>
     function cargarUsuarios() {
       const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-      const contenedor = document.getElementById("contenedorUsuarios");
-      contenedor.innerHTML = "";
-
-      if (usuarios.length === 0) {
-        contenedor.innerHTML = "<p>No hay usuarios registrados aún.</p>";
-      } else {
-        usuarios.forEach((u, index) => {
-          const div = document.createElement("div");
-          div.className = "usuario";
-          div.innerHTML = `
-            <div class="info">
-              <strong>Nombre:</strong> ${u.nombre}<br>
-              <strong>Correo:</strong> ${u.correo}<br>
-              <strong>Código:</strong> ${u.codigo}<br>
-              <strong>Referido por:</strong> ${u.referidoPor || 'Ninguno'}<br>
-              <strong>Línea:</strong> ${u.linea || 'No definida'}<br>
-            </div>
-            <div class="acciones">
-              <button onclick="abrirModalEdicion(${index})">✏️ Modificar</button>
-              <button onclick="eliminarUsuario(${index})">🗑 Eliminar</button>
-              <button onclick="mostrarArbol(${index})">🌳 Ver Árbol</button>
-            </div>
-          `;
-          contenedor.appendChild(div);
-        });
-      }
-    }
-
-    function eliminarUsuario(index) {
-      if (confirm("¿Estás seguro de eliminar este usuario?")) {
-        const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-        usuarios.splice(index, 1);
-        localStorage.setItem("usuarios", JSON.stringify(usuarios));
-        cargarUsuarios();
-      }
-    }
-
-    function abrirModalEdicion(index) {
-      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-      const u = usuarios[index];
-      document.getElementById("edit-index").value = index;
-      document.getElementById("edit-nombre").value = u.nombre;
-      document.getElementById("edit-correo").value = u.correo;
-      document.getElementById("edit-password").value = u.password || "";
-      document.getElementById("edit-linea").value = u.linea || "";
-      document.getElementById("modal-edicion").style.display = "flex";
-    }
-
-    function cerrarModalEdicion() {
-      document.getElementById("modal-edicion").style.display = "none";
-    }
-
-    document.getElementById("form-edicion").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const index = parseInt(document.getElementById("edit-index").value);
-      const nombre = document.getElementById("edit-nombre").value.trim();
-      const correo = document.getElementById("edit-correo").value.trim();
-      const password = document.getElementById("edit-password").value;
-      const linea = document.getElementById("edit-linea").value.trim();
-
-      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-      if (!usuarios[index]) return alert("Error interno");
-
-      usuarios[index].nombre = nombre;
-      usuarios[index].correo = correo;
-      usuarios[index].password = password;
-      usuarios[index].linea = linea;
-
-      localStorage.setItem("usuarios", JSON.stringify(usuarios));
-      cerrarModalEdicion();
-      cargarUsuarios();
-    });
-
-    function construirArbol(codigo) {
-      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-      const hijos = usuarios.filter(u => u.referidoPor === codigo);
-      if (!hijos.length) return '';
-
-      let html = '<ul>';
-      hijos.forEach(hijo => {
-        html += `<li><div>${hijo.nombre}</div>`;
-        html += construirArbol(hijo.codigo);
-        html += '</li>';
+      const tbody = document.querySelector("#tablaUsuarios tbody");
+      tbody.innerHTML = "";
+      usuarios.forEach(u => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${u.nombre}</td>
+          <td>${u.correo}</td>
+          <td>${u.password || ''}</td>
+          <td>${u.codigo}</td>
+          <td>${u.referidoPor || ''}</td>
+          <td>${u.linea || ''}</td>
+        `;
+        tbody.appendChild(row);
       });
-      html += '</ul>';
-      return html;
     }
 
-    function mostrarArbol(index) {
+    function exportarExcel() {
       const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-      const usuario = usuarios[index];
-      const html = `
-        <div class="tree">
-          <ul>
-            <li><div>${usuario.nombre}</div>
-              ${construirArbol(usuario.codigo)}
-            </li>
-          </ul>
-        </div>
-      `;
+      const ws = XLSX.utils.json_to_sheet(usuarios);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Usuarios");
+      XLSX.writeFile(wb, "usuarios.xlsx");
+    }
 
-      const modal = document.createElement("div");
-      modal.style.position = "fixed";
-      modal.style.top = 0;
-      modal.style.left = 0;
-      modal.style.width = "100%";
-      modal.style.height = "100%";
-      modal.style.backgroundColor = "rgba(0,0,0,0.5)";
-      modal.style.display = "flex";
-      modal.style.alignItems = "center";
-      modal.style.justifyContent = "center";
-      modal.style.zIndex = "9999";
-      modal.innerHTML = `
-        <div style="background: white; padding: 20px; border-radius: 10px; max-height: 80vh; overflow-y: auto; width: 95%; max-width: 600px;">
-          <h3>Árbol de ${usuario.nombre}</h3>
-          ${html}
-          <br>
-          <button onclick="document.body.removeChild(this.parentElement.parentElement)" style="margin-top: 10px; background-color: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 5px;">Cerrar</button>
-        </div>
-      `;
+    function importarExcel(event) {
+      const file = event.target.files[0];
+      if (!file) return;
 
-      document.body.appendChild(modal);
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+        const actuales = JSON.parse(localStorage.getItem("usuarios") || "[]");
+        const combinados = combinarUsuarios(actuales, rows);
+        localStorage.setItem("usuarios", JSON.stringify(combinados));
+        cargarUsuarios();
+        alert("Usuarios importados y combinados correctamente.");
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function combinarUsuarios(actuales, nuevos) {
+      const map = new Map();
+      actuales.forEach(u => map.set(u.codigo, u));
+      nuevos.forEach(nuevo => map.set(nuevo.codigo, { ...map.get(nuevo.codigo), ...nuevo }));
+      return Array.from(map.values());
     }
 
     cargarUsuarios();
