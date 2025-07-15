@@ -15,21 +15,16 @@
 
   <main>
     <!-- LOGIN FORM -->
-    <form id="form-login" style="display:none;">
+    <form id="form-login">
       <h2>Iniciar Sesión</h2>
       <input type="email" id="loginCorreo" placeholder="Correo electrónico" required />
       <input type="password" id="loginPassword" placeholder="Contraseña" required />
       <button type="submit">Entrar</button>
     </form>
 
-    <!-- PANEL USUARIO -->
-    <div id="panel-usuario" style="display:none; background: white; padding: 1em; border-radius: 12px; box-shadow: 0 2px 10px var(--sombra); margin-bottom: 1.5rem;">
-      <p><strong>Bienvenido:</strong> <span id="nombreUsuario"></span></p>
-      <button onclick="cerrarSesion()" style="background-color:#e74c3c;">Cerrar sesión</button>
-    </div>
-
     <!-- REGISTRO FORM -->
     <form id="form-registro">
+      <h2>Registro</h2>
       <input type="text" id="nombre" placeholder="Nombre completo" required />
       <input type="email" id="correo" placeholder="Correo electrónico" required />
       <input type="password" id="password" placeholder="Contraseña" required />
@@ -48,9 +43,6 @@
 
       <button type="submit">Registrarse</button>
     </form>
-
-    <h3>Mis referidos</h3>
-    <div id="listaReferidos"></div>
   </main>
 
   <!-- MODAL -->
@@ -101,15 +93,6 @@
     }
 
     // ----------- LOGIN ------------
-    document.addEventListener("DOMContentLoaded", () => {
-      const usuarioLogueado = JSON.parse(localStorage.getItem("usuarioLogueado"));
-      if (usuarioLogueado) {
-        mostrarPanel(usuarioLogueado);
-      } else {
-        document.getElementById("form-login").style.display = "block";
-      }
-    });
-
     document.getElementById("form-login").addEventListener("submit", function(e) {
       e.preventDefault();
       const correo = document.getElementById("loginCorreo").value.trim();
@@ -119,23 +102,11 @@
 
       if (usuario) {
         localStorage.setItem("usuarioLogueado", JSON.stringify(usuario));
-        mostrarPanel(usuario);
+        window.location.href = "panel.html"; // 🔁 Redirección al panel
       } else {
         alert("Correo o contraseña incorrectos.");
       }
     });
-
-    function mostrarPanel(usuario) {
-      document.getElementById("form-login").style.display = "none";
-      document.getElementById("panel-usuario").style.display = "block";
-      document.getElementById("form-registro").style.display = "none";
-      document.getElementById("nombreUsuario").textContent = usuario.nombre;
-    }
-
-    function cerrarSesion() {
-      localStorage.removeItem("usuarioLogueado");
-      location.reload();
-    }
 
     // ----------- REGISTRO ------------
     document.getElementById("form-registro").addEventListener("submit", function (e) {
