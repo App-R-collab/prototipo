@@ -56,6 +56,31 @@
       margin: auto;
     }
 
+    .moneda-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
+    .moneda-girando {
+      width: 100px;
+      height: 100px;
+      animation: girar 2s linear infinite, flotar 3s ease-in-out infinite;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)) brightness(1.1);
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+      border-radius: 50%;
+    }
+
+    @keyframes girar {
+      0% { transform: rotateY(0deg); }
+      100% { transform: rotateY(360deg); }
+    }
+
+    @keyframes flotar {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
     form {
       display: flex;
       flex-direction: column;
@@ -122,6 +147,10 @@
     </div>
   </header>
 
+  <div class="moneda-container">
+    <img src="https://github.com/App-R-collab/prototipo/blob/main/moneda.png?raw=true" alt="Moneda" class="moneda-girando" />
+  </div>
+
   <main>
     <!-- LOGIN FORM -->
     <form id="form-login" style="display:none;">
@@ -158,8 +187,7 @@
 
       <button type="submit">Registrarse</button>
     </form>
-
-  
+  </main>
 
   <!-- MODAL -->
   <div id="modal">
@@ -208,7 +236,7 @@
       document.getElementById("modal").style.display = "none";
     }
 
-    // ----------- LOGIN ------------
+    // LOGIN
     document.addEventListener("DOMContentLoaded", () => {
       const usuarioLogueado = JSON.parse(localStorage.getItem("usuarioLogueado"));
       if (usuarioLogueado) {
@@ -227,7 +255,6 @@
 
       if (usuario) {
         localStorage.setItem("usuarioLogueado", JSON.stringify(usuario));
-        // Redirigir al panel
         window.location.href = "panel.html";
       } else {
         alert("Correo o contraseña incorrectos.");
@@ -246,7 +273,7 @@
       location.reload();
     }
 
-    // ----------- REGISTRO ------------
+    // REGISTRO
     document.getElementById("form-registro").addEventListener("submit", function (e) {
       e.preventDefault();
 
