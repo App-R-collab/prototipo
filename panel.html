@@ -250,11 +250,12 @@
     if (comisionDirecta + residual > 0) logros.push(`💰 Has ganado $${comisionDirecta + residual}`);
 
     const logrosDiv = document.getElementById("logros");
-    logrosDiv.innerHTML = logros.length === 0
-      ? "😔 No has conseguido ningún logro todavía."
-      : `<h3>Logros</h3><ul>${logros.map(l => `<li>${l}</li>`).join("")}</ul>`;
+    if (logros.length === 0) {
+      logrosDiv.innerHTML = "😔 No has conseguido ningún logro todavía.";
+    } else {
+      logrosDiv.innerHTML = `<h3>Logros</h3><ul>${logros.map(l => `<li>${l}</li>`).join("")}</ul>`;
+    }
 
-    // Gráfico
     const dataComisiones = [comisionDirecta, residual];
     const hayDatos = dataComisiones.some(valor => parseInt(valor) > 0);
 
@@ -282,9 +283,12 @@
       }
     });
 
-    // Árbol por líneas
-    function construirArbol(padreCodigo, contenedor, nivel = 0, linea) {
-      const hijos = usuarios.filter(u => u.referidoPor === padreCodigo && u.linea === linea);
+    // Árbol por líneas con filtro
+    function construirArbol(padreCodigo, contenedor, lineaFiltro = null) {
+      const hijos = usuarios.filter(u =>
+        u.referidoPor === padreCodigo &&
+        (lineaFiltro ? u.linea === lineaFiltro : true)
+      );
       if (hijos.length === 0) return;
 
       const nivelDiv = document.createElement("div");
@@ -293,13 +297,9 @@
       hijos.forEach(hijo => {
         const div = document.createElement("div");
         div.className = "referido";
-        div.innerHTML = `
-          <strong>${hijo.nombre}</strong><br>
-          <small>${hijo.correo}</small><br>
-          <em>Línea ${hijo.linea}</em>`;
+        div.innerHTML = `<strong>${hijo.nombre}</strong><br><small>${hijo.correo}</small><br><em>${hijo.linea}</em>`;
         nivelDiv.appendChild(div);
-
-        construirArbol(hijo.codigo, contenedor, nivel + 1, linea);
+        construirArbol(hijo.codigo, contenedor, lineaFiltro);
       });
 
       contenedor.appendChild(nivelDiv);
@@ -308,8 +308,8 @@
     const contLinea1 = document.getElementById("linea1");
     const contLinea2 = document.getElementById("linea2");
 
-    construirArbol(usuario.codigo, contLinea1, 0, "1");
-    construirArbol(usuario.codigo, contLinea2, 0, "2");
+    construirArbol(usuario.codigo, contLinea1, "1");
+    construirArbol(usuario.codigo, contLinea2, "2");
 
     function cerrarSesion() {
       localStorage.removeItem("usuarioLogueado");
