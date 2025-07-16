@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registro de Referidos</title>
   <style>
     :root {
@@ -13,6 +13,12 @@
       font-family: sans-serif;
       margin: 0;
       background: #f9f9f9;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.tema-oscuro {
+      background: #121212;
+      color: white;
     }
 
     header {
@@ -43,6 +49,7 @@
       border-radius: 8px;
       flex-direction: column;
       gap: 0.5rem;
+      z-index: 100;
     }
 
     .ajustes-menu button {
@@ -51,6 +58,10 @@
       padding: 0.5rem;
       cursor: pointer;
       border-radius: 4px;
+    }
+
+    .ajustes-menu.mostrar {
+      display: flex;
     }
 
     .moneda-container {
@@ -96,19 +107,17 @@
     }
 
     @keyframes brillo {
-      0% { filter: drop-shadow(0 0 4px gold) drop-shadow(0 0 8px gold); }
-      100% { filter: drop-shadow(0 0 10px white) drop-shadow(0 0 20px gold); }
+      0% {
+        filter: drop-shadow(0 0 4px gold) drop-shadow(0 0 8px gold);
+      }
+      100% {
+        filter: drop-shadow(0 0 10px white) drop-shadow(0 0 20px gold);
+      }
     }
 
     @keyframes sombraExpandir {
-      0%, 100% {
-        transform: scaleX(1);
-        opacity: 0.12;
-      }
-      50% {
-        transform: scaleX(1.3);
-        opacity: 0.08;
-      }
+      0%, 100% { transform: scaleX(1); opacity: 0.12; }
+      50% { transform: scaleX(1.3); opacity: 0.08; }
     }
 
     main {
@@ -128,21 +137,20 @@
       margin-bottom: 1.5rem;
     }
 
-    form input[type="text"],
-    form input[type="email"],
-    form input[type="password"],
-    form input[type="file"] {
+    form input,
+    form button {
       padding: 0.5rem;
-      border: 1px solid #ccc;
       border-radius: 6px;
     }
 
+    form input {
+      border: 1px solid #ccc;
+    }
+
     form button {
-      padding: 0.5rem;
       background: #27ae60;
       color: white;
       border: none;
-      border-radius: 6px;
       cursor: pointer;
     }
 
@@ -151,7 +159,8 @@
       gap: 1rem;
     }
 
-    #modal, #modal-ajustes {
+    #modal,
+    #modal-ajustes {
       display: none;
       position: fixed;
       top: 0;
@@ -161,13 +170,24 @@
       background: rgba(0,0,0,0.5);
       justify-content: center;
       align-items: center;
+      z-index: 1000;
     }
 
-    #modal-content, #modal-ajustes > div {
+    #modal-content,
+    #ajustes-content {
       background: white;
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 2px 20px var(--sombra);
+      max-width: 400px;
+    }
+
+    #ajustes-content h3 {
+      margin-top: 0;
+    }
+
+    label {
+      margin-top: 1rem;
     }
   </style>
 </head>
@@ -205,13 +225,13 @@
     </div>
 
     <form id="form-registro">
-      <label for="documento"><strong>Registro:</strong></label>
+      <label><strong>Registro:</strong></label>
       <input type="text" id="nombre" placeholder="Nombre completo" required />
       <input type="email" id="correo" placeholder="Correo electrónico" required />
       <input type="password" id="password" placeholder="Contraseña" required />
       <input type="password" id="confirmPassword" placeholder="Confirmar contraseña" required />
       <input type="text" id="codigoReferido" placeholder="Código de referido (opcional)" />
-      <label for="documento"><strong>Sube tu cédula:</strong></label>
+      <label><strong>Sube tu cédula:</strong></label>
       <input type="file" id="documento" accept="image/*,application/pdf" required />
 
       <p><strong>Selecciona una línea:</strong></p>
@@ -225,6 +245,7 @@
       <button type="submit">Registrarse</button>
     </form>
 
+    <!-- MODAL CONSULTA -->
     <div id="modal">
       <div id="modal-content">
         <h3>Resumen de Referidos</h3>
@@ -233,32 +254,33 @@
       </div>
     </div>
 
-    <!-- MODAL DE AJUSTES -->
+    <!-- MODAL AJUSTES -->
     <div id="modal-ajustes">
-      <div>
+      <div id="ajustes-content">
         <h3>Ajustes</h3>
-        <label for="idiomaSelect"><strong>Idioma:</strong></label>
-        <select id="idiomaSelect" style="width:100%; margin-bottom:1rem; padding:0.5rem;">
+
+        <label for="idioma">Idioma:</label>
+        <select id="idioma" onchange="cambiarIdioma(this.value)">
           <option value="es">Español</option>
-          <option value="en">English</option>
+          <option value="en">Inglés</option>
         </select>
 
-        <label for="temaSelect"><strong>Tema:</strong></label>
-        <select id="temaSelect" style="width:100%; margin-bottom:1rem; padding:0.5rem;">
+        <label for="tema">Tema:</label>
+        <select id="tema" onchange="cambiarTema(this.value)">
           <option value="claro">Claro</option>
           <option value="oscuro">Oscuro</option>
+          <option value="sistema">Sistema</option>
         </select>
 
-        <button onclick="guardarAjustes()" style="margin-right: 1rem;">Guardar</button>
-        <button onclick="cerrarModalAjustes()" style="background-color:#e74c3c; color:white;">Cancelar</button>
+        <br><br>
+        <button onclick="cerrarModalAjustes()">Cerrar</button>
       </div>
     </div>
   </main>
 
   <script>
     function toggleAjustesMenu() {
-      const menu = document.getElementById("ajustesMenu");
-      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+      document.getElementById("ajustesMenu").classList.toggle("mostrar");
     }
 
     function mostrarModalConsulta() {
@@ -295,43 +317,38 @@
 
     function mostrarModalAjustes() {
       document.getElementById("modal-ajustes").style.display = "flex";
-      document.getElementById("idiomaSelect").value = localStorage.getItem("idioma") || "es";
-      document.getElementById("temaSelect").value = localStorage.getItem("tema") || "claro";
     }
 
     function cerrarModalAjustes() {
       document.getElementById("modal-ajustes").style.display = "none";
     }
 
-    function guardarAjustes() {
-      const idioma = document.getElementById("idiomaSelect").value;
-      const tema = document.getElementById("temaSelect").value;
-      localStorage.setItem("idioma", idioma);
-      localStorage.setItem("tema", tema);
-      aplicarTema(tema);
-      cerrarModalAjustes();
+    function cambiarTema(valor) {
+      localStorage.setItem("tema", valor);
+      aplicarTema(valor);
     }
 
     function aplicarTema(tema) {
-      const fondo = tema === "oscuro" ? "#1e1e1e" : "#f9f9f9";
-      const texto = tema === "oscuro" ? "white" : "black";
-      const elementos = document.querySelectorAll("body, form, #panel-usuario, .ajustes-menu, #modal-content, #modal-ajustes > div");
-      elementos.forEach(el => {
-        el.style.background = fondo;
-        el.style.color = texto;
-      });
+      document.body.classList.remove("tema-oscuro");
+      if (tema === "oscuro" || (tema === "sistema" && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+        document.body.classList.add("tema-oscuro");
+      }
+    }
+
+    function cambiarIdioma(idioma) {
+      localStorage.setItem("idioma", idioma);
+      alert("Idioma cambiado a: " + (idioma === "es" ? "Español" : "Inglés"));
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      aplicarTema(localStorage.getItem("tema") || "claro");
+
       const usuarioLogueado = JSON.parse(localStorage.getItem("usuarioLogueado"));
       if (usuarioLogueado) {
         mostrarPanel(usuarioLogueado);
       } else {
         document.getElementById("form-login").style.display = "block";
       }
-
-      const temaGuardado = localStorage.getItem("tema") || "claro";
-      aplicarTema(temaGuardado);
     });
 
     document.getElementById("form-login").addEventListener("submit", function(e) {
@@ -340,6 +357,7 @@
       const password = document.getElementById("loginPassword").value;
       const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
       const usuario = usuarios.find(u => u.correo === correo && u.password === password);
+
       if (usuario) {
         localStorage.setItem("usuarioLogueado", JSON.stringify(usuario));
         window.location.href = "panel.html";
@@ -362,25 +380,40 @@
 
     document.getElementById("form-registro").addEventListener("submit", function (e) {
       e.preventDefault();
+
       const nombre = document.getElementById("nombre").value.trim();
       const correo = document.getElementById("correo").value.trim();
       const password = document.getElementById("password").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
       const codigoReferido = document.getElementById("codigoReferido").value.trim();
       const linea = document.querySelector('input[name="linea"]:checked')?.value;
+
       if (password !== confirmPassword) {
         alert("Las contraseñas no coinciden.");
         return;
       }
+
       const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
-      const usuario = { nombre, correo, password, codigo, referidoPor: codigoReferido || null, linea };
+
+      const usuario = {
+        nombre,
+        correo,
+        password,
+        codigo,
+        referidoPor: codigoReferido || null,
+        linea,
+      };
+
       const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+
       if (usuarios.find(u => u.correo === correo)) {
         alert("Este correo ya está registrado.");
         return;
       }
+
       usuarios.push(usuario);
       localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
       alert(`Registro exitoso. Tu código de referido es: ${codigo}`);
       this.reset();
     });
