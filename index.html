@@ -179,83 +179,183 @@
 
   <header>
     <h1>Registro de Referidos</h1>
+    <div class="ajustes" onclick="toggleAjustesMenu()">⚙️</div>
+    <div class="ajustes-menu" id="ajustesMenu">
+      <button onclick="window.location.href='ver_referidos.html'">Ver Referidos</button>
+      <button onclick="mostrarModalConsulta()">Consultar Código</button>
+      <button onclick="alert('Ajustes en desarrollo')">Ajustes</button>
+    </div>
   </header>
 
-  <!-- Selector de idioma -->
-  <div style="text-align: center; margin: 1rem 0;">
-    <label for="languageSelect">🌐 Idioma / Language:</label>
-    <select id="languageSelect">
-      <option value="es">Español</option>
-      <option value="en">English</option>
-    </select>
-  </div>
-
-  <!-- Fecha y tipo de cambio -->
-  <div style="text-align: center; margin: 1rem 0;">
-    <p id="fechaHora"></p>
-    <p id="preciosDivisas"></p>
-  </div>
-
-  <!-- Imagen animada de moneda -->
+  <!-- MONEDA FUERA DEL HEADER -->
   <div class="moneda-container">
-    <img class="moneda-girando" src="https://cdn-icons-png.flaticon.com/512/825/825508.png" alt="Moneda" />
+    <div class="moneda-girando">
+      <img src="https://github.com/App-R-collab/prototipo/blob/main/moneda.png?raw=true"
+        alt="Moneda"
+        style="width:100%; height:100%; border-radius: 50%;" />
+    </div>
   </div>
 
-  <!-- Formulario de registro -->
   <main>
-    <form>
-      <input type="text" placeholder="Nombre completo" required />
-      <input type="email" placeholder="Correo electrónico" required />
-      <input type="password" placeholder="Contraseña" required />
-      <input type="file" />
-      <button type="submit">Registrar</button>
+    <!-- LOGIN FORM -->
+    <form id="form-login" style="display:none;">
+      <h2>Iniciar Sesión</h2>
+      <input type="email" id="loginCorreo" placeholder="Correo electrónico" required />
+      <input type="password" id="loginPassword" placeholder="Contraseña" required />
+      <button type="submit">Entrar</button>
     </form>
+
+    <!-- PANEL USUARIO -->
+    <div id="panel-usuario" style="display:none; background: white; padding: 1em; border-radius: 12px; box-shadow: 0 2px 10px var(--sombra); margin-bottom: 1.5rem;">
+      <p><strong>Bienvenido:</strong> <span id="nombreUsuario"></span></p>
+      <button onclick="cerrarSesion()" style="background-color:#e74c3c;">Cerrar sesión</button>
+    </div>
+
+    <!-- REGISTRO FORM -->
+    <form id="form-registro">
+      <label for="documento"><strong>Registro:</strong></label>
+      <input type="text" id="nombre" placeholder="Nombre completo" required />
+      <input type="email" id="correo" placeholder="Correo electrónico" required />
+      <input type="password" id="password" placeholder="Contraseña" required />
+      <input type="password" id="confirmPassword" placeholder="Confirmar contraseña" required />
+      <input type="text" id="codigoReferido" placeholder="Código de referido (opcional)" />
+      <label for="documento"><strong>Sube tu cédula:</strong></label>
+      <input type="file" id="documento" accept="image/*,application/pdf" required />
+
+      <p><strong>Selecciona una línea:</strong></p>
+      <div class="lineas-btns">
+        <input type="radio" id="linea1" name="linea" value="Línea 1" required />
+        <label for="linea1">Línea 1</label>
+        <input type="radio" id="linea2" name="linea" value="Línea 2" />
+        <label for="linea2">Línea 2</label>
+      </div>
+
+      <button type="submit">Registrarse</button>
+    </form>
+
+    <!-- MODAL -->
+    <div id="modal">
+      <div id="modal-content">
+        <h3>Resumen de Referidos</h3>
+        <div id="detalleReferido"></div>
+        <button onclick="cerrarModal()">Cerrar</button>
+      </div>
+    </div>
   </main>
 
-  <!-- Scripts -->
   <script>
-    function actualizarFechaHora() {
-      const lang = document.getElementById("languageSelect").value;
-      const fechaHora = new Date();
-      const formato = new Intl.DateTimeFormat(lang, {
-        dateStyle: "full",
-        timeStyle: "short"
-      });
-      document.getElementById("fechaHora").textContent = formato.format(fechaHora);
+    function toggleAjustesMenu() {
+      const menu = document.getElementById("ajustesMenu");
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
     }
 
-    async function actualizarDivisas() {
-      try {
-        const res = await fetch("https://api.exchangerate.host/latest?base=USD&symbols=EUR,COP");
-        const data = await res.json();
-        const usdToEur = data.rates.EUR.toFixed(2);
-        const usdToCop = data.rates.COP.toFixed(0);
+    function mostrarModalConsulta() {
+      const codigo = prompt("Ingresa tu código de referido:");
+      if (!codigo) return;
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const usuario = usuarios.find(u => u.codigo === codigo);
+      const detalle = document.getElementById("detalleReferido");
+      if (usuario) {
+        const referidos = usuarios.filter(r => r.referidoPor === codigo);
+        const comisionDirecta = referidos.length * 30000;
+        const comisionResidual = referidos.reduce((total, ref) => {
+          const sub = usuarios.filter(u => u.referidoPor === ref.codigo);
+          return total + (sub.length * 100);
+        }, 0);
 
-        const lang = document.getElementById("languageSelect").value;
-        const textos = {
-          es: `<img src='https://flagcdn.com/us.svg' width='20'> 1 USD = <strong>${usdToEur} EUR</strong> | <strong>${usdToCop} COP</strong>`,
-          en: `<img src='https://flagcdn.com/us.svg' width='20'> 1 USD = <strong>${usdToEur} EUR</strong> | <strong>${usdToCop} COP</strong>`
-        };
-
-        document.getElementById("preciosDivisas").innerHTML = textos[lang];
-      } catch (error) {
-        console.error("Error obteniendo divisas:", error);
+        detalle.innerHTML = `
+          <p><strong>Nombre:</strong> ${usuario.nombre}</p>
+          <p><strong>Correo:</strong> ${usuario.correo}</p>
+          <p><strong>Línea:</strong> ${usuario.linea}</p>
+          <p><strong>Referidos directos:</strong> ${referidos.length}</p>
+          <p><strong>Comisión directa:</strong> $${comisionDirecta}</p>
+          <p><strong>Ganancia residual:</strong> $${comisionResidual}</p>
+        `;
+        document.getElementById("modal").style.display = "flex";
+      } else {
+        alert("Código no encontrado");
       }
     }
 
-    setInterval(() => {
-      actualizarFechaHora();
-      actualizarDivisas();
-    }, 300000); // cada 5 minutos
+    function cerrarModal() {
+      document.getElementById("modal").style.display = "none";
+    }
 
-    actualizarFechaHora();
-    actualizarDivisas();
+    document.addEventListener("DOMContentLoaded", () => {
+      const usuarioLogueado = JSON.parse(localStorage.getItem("usuarioLogueado"));
+      if (usuarioLogueado) {
+        mostrarPanel(usuarioLogueado);
+      } else {
+        document.getElementById("form-login").style.display = "block";
+      }
+    });
 
-    document.getElementById("languageSelect").addEventListener("change", () => {
-      actualizarFechaHora();
-      actualizarDivisas();
+    document.getElementById("form-login").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const correo = document.getElementById("loginCorreo").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const usuario = usuarios.find(u => u.correo === correo && u.password === password);
+
+      if (usuario) {
+        localStorage.setItem("usuarioLogueado", JSON.stringify(usuario));
+        window.location.href = "panel.html";
+      } else {
+        alert("Correo o contraseña incorrectos.");
+      }
+    });
+
+    function mostrarPanel(usuario) {
+      document.getElementById("form-login").style.display = "none";
+      document.getElementById("panel-usuario").style.display = "block";
+      document.getElementById("form-registro").style.display = "none";
+      document.getElementById("nombreUsuario").textContent = usuario.nombre;
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem("usuarioLogueado");
+      location.reload();
+    }
+
+    document.getElementById("form-registro").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const nombre = document.getElementById("nombre").value.trim();
+      const correo = document.getElementById("correo").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const codigoReferido = document.getElementById("codigoReferido").value.trim();
+      const linea = document.querySelector('input[name="linea"]:checked')?.value;
+
+      if (password !== confirmPassword) {
+        alert("Las contraseñas no coinciden.");
+        return;
+      }
+
+      const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+      const usuario = {
+        nombre,
+        correo,
+        password,
+        codigo,
+        referidoPor: codigoReferido || null,
+        linea,
+      };
+
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+
+      if (usuarios.find(u => u.correo === correo)) {
+        alert("Este correo ya está registrado.");
+        return;
+      }
+
+      usuarios.push(usuario);
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+      alert(`Registro exitoso. Tu código de referido es: ${codigo}`);
+      this.reset();
     });
   </script>
-
 </body>
 </html>
