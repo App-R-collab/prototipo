@@ -56,10 +56,23 @@
     .moneda-container {
       display: flex;
       justify-content: center;
+      align-items: center;
       margin-top: 20px;
       margin-bottom: 20px;
       z-index: 1;
       position: relative;
+    }
+
+    .moneda-container::after {
+      content: "";
+      position: absolute;
+      bottom: -5px;
+      width: 60px;
+      height: 10px;
+      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.25) 0%, transparent 80%);
+      border-radius: 50%;
+      animation: sombraExpandir 3s ease-in-out infinite;
+      z-index: 0;
     }
 
     .moneda-girando {
@@ -68,6 +81,7 @@
       animation: flotar 3s ease-in-out infinite, girar 4s linear infinite, brillo 2s infinite alternate;
       filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
       transition: transform 0.3s ease;
+      z-index: 1;
     }
 
     @keyframes flotar {
@@ -86,6 +100,17 @@
       }
       100% {
         filter: drop-shadow(0 0 10px white) drop-shadow(0 0 20px gold);
+      }
+    }
+
+    @keyframes sombraExpandir {
+      0%, 100% {
+        transform: scaleX(1);
+        opacity: 0.25;
+      }
+      50% {
+        transform: scaleX(1.5);
+        opacity: 0.15;
       }
     }
 
