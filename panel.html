@@ -2,10 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panel del Usuario</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --verde: #00c851;
@@ -29,42 +29,43 @@
       text-align: center;
     }
 
+    .acciones {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 1rem;
+      background-color: #fff;
+    }
+
+    .acciones button {
+      background-color: var(--verde);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .acciones button:hover {
+      background-color: #00993d;
+    }
+
     main {
       max-width: 800px;
       margin: auto;
       background: white;
-      margin-top: 0;
+      margin-top: 1rem;
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 2px 10px var(--sombra);
     }
 
-    .botones {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      margin-top: -20px;
-    }
-
-    .botones button {
-      background-color: #00c851;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .botones button:hover {
-      background-color: #009b3a;
-    }
-
-    h2, h3 {
+    h2, h3, h4 {
       margin-top: 0;
     }
 
@@ -107,37 +108,41 @@
       padding-bottom: 0.5rem;
     }
 
-    #logros {
-      margin-top: 30px;
+    .logros {
+      margin-top: 2rem;
+      background-color: #eef9f0;
+      padding: 1rem;
+      border-radius: 10px;
     }
 
     .logro {
-      background-color: #e0ffe0;
-      padding: 10px;
-      border-left: 5px solid var(--verde);
-      border-radius: 6px;
-      margin: 10px 0;
+      margin-bottom: 10px;
+      font-weight: bold;
     }
 
-    #graficoReferidos {
-      margin-top: 30px;
+    .grafico {
+      margin-top: 2rem;
     }
 
-    #arbolReferidos {
-      margin-top: 30px;
-      padding: 10px;
-      background-color: #f0f8ff;
-      border-left: 4px solid var(--verde);
-      border-radius: 10px;
+    .arbol {
+      margin-top: 2rem;
+    }
+
+    .arbol ul {
+      list-style: none;
+      padding-left: 20px;
     }
 
     button.cerrar {
       background-color: #e74c3c;
-      margin-top: 30px;
+      margin-top: 2rem;
     }
 
-    button.cerrar:hover {
-      background-color: #c0392b;
+    @media (max-width: 600px) {
+      .acciones {
+        flex-direction: column;
+        align-items: stretch;
+      }
     }
   </style>
 </head>
@@ -145,15 +150,14 @@
   <header>
     <h1>Panel del Usuario</h1>
   </header>
-  <main>
-    <div class="botones">
-      <button onclick="compartirWhatsapp()">
-        <span class="material-icons">whatsapp</span> Invitar por WhatsApp
-      </button>
-      <button onclick="alert('Descargando PDF...')">Descargar informe</button>
-      <button onclick="alert('Estadísticas generales')">Ver estadísticas</button>
-    </div>
 
+  <div class="acciones">
+    <button onclick="invitarWhatsapp()"><i class="fab fa-whatsapp"></i> Invitar por WhatsApp</button>
+    <button onclick="copiarCodigo()">📋 Copiar Código</button>
+    <button onclick="cerrarSesion()">🔒 Cerrar sesión</button>
+  </div>
+
+  <main>
     <h2>Bienvenido, <span id="nombreUsuario"></span></h2>
     <div class="dato"><strong>Correo:</strong> <span id="correoUsuario"></span></div>
     <div class="dato"><strong>Código para Referir:</strong> <span id="codigoUsuario"></span></div>
@@ -174,32 +178,27 @@
       </div>
     </div>
 
-    <div id="logros">
+    <div class="logros">
       <h3>Logros</h3>
-      <div class="logro">🎯 Primer referido conseguido</div>
-      <div class="logro">💰 Has ganado más de $90.000</div>
+      <div id="logrosUsuario"></div>
     </div>
 
-    <div id="graficoReferidos">
-      <h3>Desempeño</h3>
-      <canvas id="referidosChart" width="400" height="200"></canvas>
+    <div class="grafico">
+      <h3>Gráfico de Comisiones</h3>
+      <canvas id="graficoComisiones" width="400" height="200"></canvas>
     </div>
 
-    <div id="arbolReferidos">
+    <div class="arbol">
       <h3>Árbol de Referidos</h3>
-      <pre id="arbolVisual"></pre>
+      <ul id="arbolReferidos"></ul>
     </div>
-
-    <button class="cerrar" onclick="cerrarSesion()">Cerrar sesión</button>
   </main>
 
   <script>
     const usuario = JSON.parse(localStorage.getItem("usuarioLogueado"));
     const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
 
-    if (!usuario) {
-      window.location.href = "index.html";
-    }
+    if (!usuario) window.location.href = "index.html";
 
     document.getElementById("nombreUsuario").textContent = usuario.nombre;
     document.getElementById("correoUsuario").textContent = usuario.correo;
@@ -208,58 +207,75 @@
 
     const referidos = usuarios.filter(u => u.referidoPor === usuario.codigo);
     document.getElementById("numReferidos").textContent = referidos.length;
-    document.getElementById("comisionDirecta").textContent = referidos.length * 30000;
+    const comisionDirecta = referidos.length * 30000;
+    document.getElementById("comisionDirecta").textContent = comisionDirecta;
 
     let residual = 0;
     referidos.forEach(ref => {
-      const subReferidos = usuarios.filter(u => u.referidoPor === ref.codigo);
-      residual += subReferidos.length * 100;
+      const subRef = usuarios.filter(u => u.referidoPor === ref.codigo);
+      residual += subRef.length * 100;
     });
     document.getElementById("comisionResidual").textContent = residual;
 
-    const contLinea1 = document.getElementById("referidosLinea1");
-    const contLinea2 = document.getElementById("referidosLinea2");
-
+    // Mostrar referidos
+    const cont1 = document.getElementById("referidosLinea1");
+    const cont2 = document.getElementById("referidosLinea2");
     referidos.forEach(r => {
       const div = document.createElement("div");
       div.className = "referido";
       div.innerHTML = `<strong>${r.nombre}</strong><br><small>${r.correo}</small>`;
-      if (r.linea === "Línea 1") {
-        contLinea1.appendChild(div);
-      } else {
-        contLinea2.appendChild(div);
+      (r.linea === "Línea 1" ? cont1 : cont2).appendChild(div);
+    });
+
+    // Logros
+    const logros = document.getElementById("logrosUsuario");
+    if (referidos.length > 0) logros.innerHTML += `<div class="logro">🎉 ¡Primer referido conseguido!</div>`;
+    if (comisionDirecta >= 90000) logros.innerHTML += `<div class="logro">💰 Has ganado $${comisionDirecta} en comisiones directas</div>`;
+    if (residual > 0) logros.innerHTML += `<div class="logro">📈 Has generado ingresos residuales</div>`;
+
+    // Gráfico
+    new Chart(document.getElementById("graficoComisiones"), {
+      type: 'bar',
+      data: {
+        labels: ['Directa', 'Residual'],
+        datasets: [{
+          label: 'Comisiones',
+          data: [comisionDirecta, residual],
+          backgroundColor: ['#00c851', '#33b5e5']
+        }]
       }
     });
+
+    // Árbol de referidos
+    function construirArbol(padreCodigo, nivel = 0) {
+      const hijos = usuarios.filter(u => u.referidoPor === padreCodigo);
+      if (hijos.length === 0) return '';
+      let html = '<ul>';
+      hijos.forEach(h => {
+        html += `<li><strong>${h.nombre}</strong> (${h.correo}) - ${h.linea}`;
+        html += construirArbol(h.codigo, nivel + 1);
+        html += '</li>';
+      });
+      html += '</ul>';
+      return html;
+    }
+    document.getElementById("arbolReferidos").innerHTML = construirArbol(usuario.codigo);
 
     function cerrarSesion() {
       localStorage.removeItem("usuarioLogueado");
       window.location.href = "index.html";
     }
 
-    function compartirWhatsapp() {
-      const texto = `¡Únete a mi red! Usa este código: ${usuario.codigo}`;
-      const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
-      window.open(url, '_blank');
+    function copiarCodigo() {
+      navigator.clipboard.writeText(usuario.codigo);
+      alert("¡Código copiado al portapapeles!");
     }
 
-    const ctx = document.getElementById('referidosChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Directos', 'Residual'],
-        datasets: [{
-          label: 'Comisiones',
-          data: [referidos.length * 30000, residual],
-          backgroundColor: ['#00c851', '#888']
-        }]
-      }
-    });
-
-    const arbol = referidos.map(ref => {
-      const sub = usuarios.filter(u => u.referidoPor === ref.codigo);
-      return `${ref.nombre} → ${sub.map(s => s.nombre).join(", ")}`;
-    }).join("\n");
-    document.getElementById("arbolVisual").textContent = arbol || 'Sin estructura aún.';
+    function invitarWhatsapp() {
+      const mensaje = `Únete a esta app usando mi código de referido: ${usuario.codigo}`;
+      const enlace = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+      window.open(enlace, '_blank');
+    }
   </script>
 </body>
 </html>
