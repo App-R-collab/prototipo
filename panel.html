@@ -125,19 +125,13 @@
       margin: 10px;
       background: #f9f9f9;
       text-align: center;
-      position: relative;
-      min-width: 150px;
+      min-width: 160px;
     }
 
-    .referido::before {
-      content: "";
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      width: 2px;
-      height: 20px;
-      background-color: #ccc;
-      transform: translateX(-50%);
+    .referido > div {
+      margin-top: 10px;
+      padding-left: 20px;
+      border-left: 2px dashed #ccc;
     }
 
     .arbol-seccion {
@@ -150,14 +144,6 @@
       justify-content: space-between;
       flex-wrap: wrap;
       margin-top: 2rem;
-    }
-
-    .arbol-nivel {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 20px;
     }
 
     .arbol-seccion h4 {
@@ -283,7 +269,7 @@
       }
     });
 
-    // Árbol por líneas con filtro
+    // ✅ Árbol de referidos jerárquico corregido
     function construirArbol(padreCodigo, contenedor, lineaFiltro = null) {
       const hijos = usuarios.filter(u =>
         u.referidoPor === padreCodigo &&
@@ -291,18 +277,17 @@
       );
       if (hijos.length === 0) return;
 
-      const nivelDiv = document.createElement("div");
-      nivelDiv.className = "arbol-nivel";
-
       hijos.forEach(hijo => {
         const div = document.createElement("div");
         div.className = "referido";
         div.innerHTML = `<strong>${hijo.nombre}</strong><br><small>${hijo.correo}</small><br><em>${hijo.linea}</em>`;
-        nivelDiv.appendChild(div);
-        construirArbol(hijo.codigo, contenedor, lineaFiltro);
-      });
 
-      contenedor.appendChild(nivelDiv);
+        const subArbol = document.createElement("div");
+        construirArbol(hijo.codigo, subArbol, lineaFiltro);
+
+        div.appendChild(subArbol);
+        contenedor.appendChild(div);
+      });
     }
 
     const contLinea1 = document.getElementById("linea1");
