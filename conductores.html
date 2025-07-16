@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro de Conductores</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f5f5f5;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .form-container {
+      background: white;
+      max-width: 500px;
+      margin: auto;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    input, select {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      background: #2980b9;
+      color: white;
+      padding: 0.75rem;
+      border: none;
+      width: 100%;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #panel {
+      display: none;
+      text-align: center;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Registro de Conductores</h1>
+
+  <div class="form-container" id="registroForm">
+    <input type="text" id="nombre" placeholder="Nombre completo" required>
+    <input type="email" id="correo" placeholder="Correo electrónico" required>
+    <input type="password" id="password" placeholder="Contraseña" required>
+    <input type="text" id="licencia" placeholder="Número de licencia" required>
+    <select id="vehiculo">
+      <option value="">Tipo de vehículo</option>
+      <option value="Moto">Moto</option>
+      <option value="Carro">Carro</option>
+      <option value="Camioneta">Camioneta</option>
+    </select>
+    <input type="file" id="documento" accept="image/*,application/pdf">
+    <button onclick="registrar()">Registrarse</button>
+    <hr />
+    <input type="email" id="loginCorreo" placeholder="Correo para ingresar">
+    <input type="password" id="loginPassword" placeholder="Contraseña">
+    <button onclick="login()">Iniciar Sesión</button>
+  </div>
+
+  <div id="panel">
+    <h2>Bienvenido, <span id="nombreConductor"></span></h2>
+    <button onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+
+  <script>
+    function registrar() {
+      const nombre = document.getElementById("nombre").value;
+      const correo = document.getElementById("correo").value;
+      const password = document.getElementById("password").value;
+      const licencia = document.getElementById("licencia").value;
+      const vehiculo = document.getElementById("vehiculo").value;
+
+      const conductores = JSON.parse(localStorage.getItem("conductores") || "[]");
+
+      if (conductores.find(c => c.correo === correo)) {
+        alert("Este correo ya está registrado.");
+        return;
+      }
+
+      conductores.push({ nombre, correo, password, licencia, vehiculo });
+      localStorage.setItem("conductores", JSON.stringify(conductores));
+
+      alert("Registro exitoso. Ahora puedes iniciar sesión.");
+      document.getElementById("registroForm").reset();
+    }
+
+    function login() {
+      const correo = document.getElementById("loginCorreo").value;
+      const password = document.getElementById("loginPassword").value;
+      const conductores = JSON.parse(localStorage.getItem("conductores") || "[]");
+      const conductor = conductores.find(c => c.correo === correo && c.password === password);
+
+      if (conductor) {
+        localStorage.setItem("conductorActivo", JSON.stringify(conductor));
+        mostrarPanel(conductor);
+      } else {
+        alert("Correo o contraseña incorrectos.");
+      }
+    }
+
+    function mostrarPanel(conductor) {
+      document.getElementById("registroForm").style.display = "none";
+      document.getElementById("panel").style.display = "block";
+      document.getElementById("nombreConductor").textContent = conductor.nombre;
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem("conductorActivo");
+      location.reload();
+    }
+
+    // Mostrar panel si ya está logueado
+    document.addEventListener("DOMContentLoaded", () => {
+      const activo = JSON.parse(localStorage.getItem("conductorActivo"));
+      if (activo) {
+        mostrarPanel(activo);
+      }
+    });
+  </script>
+
+</body>
+</html>
