@@ -66,11 +66,12 @@
     .moneda-container::after {
       content: "";
       position: absolute;
-      bottom: -5px;
+      bottom: -6px;
       width: 60px;
-      height: 10px;
-      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.25) 0%, transparent 80%);
+      height: 6px;
+      background: rgba(0, 0, 0, 0.12);
       border-radius: 50%;
+      filter: blur(4px);
       animation: sombraExpandir 3s ease-in-out infinite;
       z-index: 0;
     }
@@ -106,11 +107,11 @@
     @keyframes sombraExpandir {
       0%, 100% {
         transform: scaleX(1);
-        opacity: 0.25;
+        opacity: 0.12;
       }
       50% {
-        transform: scaleX(1.5);
-        opacity: 0.15;
+        transform: scaleX(1.3);
+        opacity: 0.08;
       }
     }
 
