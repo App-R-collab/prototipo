@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Registro de Referidos</title>
   <style>
     :root {
@@ -96,12 +96,8 @@
     }
 
     @keyframes brillo {
-      0% {
-        filter: drop-shadow(0 0 4px gold) drop-shadow(0 0 8px gold);
-      }
-      100% {
-        filter: drop-shadow(0 0 10px white) drop-shadow(0 0 20px gold);
-      }
+      0% { filter: drop-shadow(0 0 4px gold) drop-shadow(0 0 8px gold); }
+      100% { filter: drop-shadow(0 0 10px white) drop-shadow(0 0 20px gold); }
     }
 
     @keyframes sombraExpandir {
@@ -155,7 +151,7 @@
       gap: 1rem;
     }
 
-    #modal {
+    #modal, #modal-ajustes {
       display: none;
       position: fixed;
       top: 0;
@@ -167,7 +163,7 @@
       align-items: center;
     }
 
-    #modal-content {
+    #modal-content, #modal-ajustes > div {
       background: white;
       padding: 2rem;
       border-radius: 12px;
@@ -183,11 +179,10 @@
     <div class="ajustes-menu" id="ajustesMenu">
       <button onclick="window.location.href='ver_referidos.html'">Ver Referidos</button>
       <button onclick="mostrarModalConsulta()">Consultar Código</button>
-      <button onclick="alert('Ajustes en desarrollo')">Ajustes</button>
+      <button onclick="mostrarModalAjustes()">Ajustes</button>
     </div>
   </header>
 
-  <!-- MONEDA FUERA DEL HEADER -->
   <div class="moneda-container">
     <div class="moneda-girando">
       <img src="https://github.com/App-R-collab/prototipo/blob/main/moneda.png?raw=true"
@@ -197,7 +192,6 @@
   </div>
 
   <main>
-    <!-- LOGIN FORM -->
     <form id="form-login" style="display:none;">
       <h2>Iniciar Sesión</h2>
       <input type="email" id="loginCorreo" placeholder="Correo electrónico" required />
@@ -205,13 +199,11 @@
       <button type="submit">Entrar</button>
     </form>
 
-    <!-- PANEL USUARIO -->
     <div id="panel-usuario" style="display:none; background: white; padding: 1em; border-radius: 12px; box-shadow: 0 2px 10px var(--sombra); margin-bottom: 1.5rem;">
       <p><strong>Bienvenido:</strong> <span id="nombreUsuario"></span></p>
       <button onclick="cerrarSesion()" style="background-color:#e74c3c;">Cerrar sesión</button>
     </div>
 
-    <!-- REGISTRO FORM -->
     <form id="form-registro">
       <label for="documento"><strong>Registro:</strong></label>
       <input type="text" id="nombre" placeholder="Nombre completo" required />
@@ -233,12 +225,32 @@
       <button type="submit">Registrarse</button>
     </form>
 
-    <!-- MODAL -->
     <div id="modal">
       <div id="modal-content">
         <h3>Resumen de Referidos</h3>
         <div id="detalleReferido"></div>
         <button onclick="cerrarModal()">Cerrar</button>
+      </div>
+    </div>
+
+    <!-- MODAL DE AJUSTES -->
+    <div id="modal-ajustes">
+      <div>
+        <h3>Ajustes</h3>
+        <label for="idiomaSelect"><strong>Idioma:</strong></label>
+        <select id="idiomaSelect" style="width:100%; margin-bottom:1rem; padding:0.5rem;">
+          <option value="es">Español</option>
+          <option value="en">English</option>
+        </select>
+
+        <label for="temaSelect"><strong>Tema:</strong></label>
+        <select id="temaSelect" style="width:100%; margin-bottom:1rem; padding:0.5rem;">
+          <option value="claro">Claro</option>
+          <option value="oscuro">Oscuro</option>
+        </select>
+
+        <button onclick="guardarAjustes()" style="margin-right: 1rem;">Guardar</button>
+        <button onclick="cerrarModalAjustes()" style="background-color:#e74c3c; color:white;">Cancelar</button>
       </div>
     </div>
   </main>
@@ -281,6 +293,35 @@
       document.getElementById("modal").style.display = "none";
     }
 
+    function mostrarModalAjustes() {
+      document.getElementById("modal-ajustes").style.display = "flex";
+      document.getElementById("idiomaSelect").value = localStorage.getItem("idioma") || "es";
+      document.getElementById("temaSelect").value = localStorage.getItem("tema") || "claro";
+    }
+
+    function cerrarModalAjustes() {
+      document.getElementById("modal-ajustes").style.display = "none";
+    }
+
+    function guardarAjustes() {
+      const idioma = document.getElementById("idiomaSelect").value;
+      const tema = document.getElementById("temaSelect").value;
+      localStorage.setItem("idioma", idioma);
+      localStorage.setItem("tema", tema);
+      aplicarTema(tema);
+      cerrarModalAjustes();
+    }
+
+    function aplicarTema(tema) {
+      const fondo = tema === "oscuro" ? "#1e1e1e" : "#f9f9f9";
+      const texto = tema === "oscuro" ? "white" : "black";
+      const elementos = document.querySelectorAll("body, form, #panel-usuario, .ajustes-menu, #modal-content, #modal-ajustes > div");
+      elementos.forEach(el => {
+        el.style.background = fondo;
+        el.style.color = texto;
+      });
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       const usuarioLogueado = JSON.parse(localStorage.getItem("usuarioLogueado"));
       if (usuarioLogueado) {
@@ -288,6 +329,9 @@
       } else {
         document.getElementById("form-login").style.display = "block";
       }
+
+      const temaGuardado = localStorage.getItem("tema") || "claro";
+      aplicarTema(temaGuardado);
     });
 
     document.getElementById("form-login").addEventListener("submit", function(e) {
@@ -296,7 +340,6 @@
       const password = document.getElementById("loginPassword").value;
       const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
       const usuario = usuarios.find(u => u.correo === correo && u.password === password);
-
       if (usuario) {
         localStorage.setItem("usuarioLogueado", JSON.stringify(usuario));
         window.location.href = "panel.html";
@@ -319,40 +362,25 @@
 
     document.getElementById("form-registro").addEventListener("submit", function (e) {
       e.preventDefault();
-
       const nombre = document.getElementById("nombre").value.trim();
       const correo = document.getElementById("correo").value.trim();
       const password = document.getElementById("password").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
       const codigoReferido = document.getElementById("codigoReferido").value.trim();
       const linea = document.querySelector('input[name="linea"]:checked')?.value;
-
       if (password !== confirmPassword) {
         alert("Las contraseñas no coinciden.");
         return;
       }
-
       const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
-
-      const usuario = {
-        nombre,
-        correo,
-        password,
-        codigo,
-        referidoPor: codigoReferido || null,
-        linea,
-      };
-
+      const usuario = { nombre, correo, password, codigo, referidoPor: codigoReferido || null, linea };
       const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-
       if (usuarios.find(u => u.correo === correo)) {
         alert("Este correo ya está registrado.");
         return;
       }
-
       usuarios.push(usuario);
       localStorage.setItem("usuarios", JSON.stringify(usuarios));
-
       alert(`Registro exitoso. Tu código de referido es: ${codigo}`);
       this.reset();
     });
