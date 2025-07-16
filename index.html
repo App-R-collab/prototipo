@@ -32,6 +32,29 @@
       top: 1.2rem;
     }
 
+    .ajustes-menu {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 1rem;
+      background: white;
+      box-shadow: 0 0 10px var(--sombra);
+      padding: 0.5rem;
+      border-radius: 8px;
+      flex-direction: column;
+      gap: 0.5rem;
+      z-index: 10;
+    }
+
+    .ajustes-menu button,
+    .ajustes-menu select {
+      background: #ecf0f1;
+      border: none;
+      padding: 0.5rem;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
     .moneda-container {
       display: flex;
       justify-content: center;
@@ -134,7 +157,8 @@
       gap: 1rem;
     }
 
-    #modal, #ajustesModal {
+    #modal,
+    #modal-ajustes {
       display: none;
       position: fixed;
       top: 0;
@@ -144,27 +168,17 @@
       background: rgba(0,0,0,0.5);
       justify-content: center;
       align-items: center;
-      z-index: 100;
+      z-index: 20;
     }
 
-    #modal-content, #ajustesModal-content {
+    #modal-content,
+    #modal-ajustes-content {
       background: white;
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 2px 20px var(--sombra);
-      min-width: 280px;
-    }
-
-    #ajustesModal-content button,
-    #ajustesModal-content select {
-      display: block;
-      width: 100%;
-      margin-bottom: 1rem;
-      padding: 0.5rem;
-      background: #ecf0f1;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      max-width: 400px;
+      width: 90%;
     }
   </style>
 </head>
@@ -172,7 +186,12 @@
 
   <header>
     <h1 data-i18n="title">Registro de Referidos</h1>
-    <div class="ajustes" onclick="mostrarModalAjustes()">⚙️</div>
+    <div class="ajustes" onclick="toggleAjustesMenu()">⚙️</div>
+    <div class="ajustes-menu" id="ajustesMenu">
+      <button onclick="window.location.href='ver_referidos.html'" data-i18n="viewReferrals">Ver Referidos</button>
+      <button onclick="mostrarModalConsulta()" data-i18n="consultCode">Consultar Código</button>
+      <button onclick="mostrarModalAjustes()" data-i18n="settings">Ajustes</button>
+    </div>
   </header>
 
   <div class="moneda-container">
@@ -213,7 +232,7 @@
       <button type="submit" data-i18n="registerBtn">Registrarse</button>
     </form>
 
-    <!-- Modal de Resumen -->
+    <!-- Modal de Consulta -->
     <div id="modal">
       <div id="modal-content">
         <h3 data-i18n="referralSummary">Resumen de Referidos</h3>
@@ -222,20 +241,20 @@
       </div>
     </div>
 
-    <!-- Nuevo Modal de Ajustes -->
-    <div id="ajustesModal">
-      <div id="ajustesModal-content">
-        <button onclick="window.location.href='ver_referidos.html'" data-i18n="viewReferrals">Ver Referidos</button>
-        <button onclick="mostrarModalConsulta()" data-i18n="consultCode">Consultar Código</button>
-        <label for="languageSelector" style="font-weight:bold;" data-i18n="settings">Ajustes</label>
-        <select id="languageSelector" onchange="changeLanguage(this.value)">
+    <!-- Modal de Ajustes -->
+    <div id="modal-ajustes">
+      <div id="modal-ajustes-content">
+        <h3 data-i18n="settings">Ajustes</h3>
+        <label for="languageSelectorModal">Idioma:</label>
+        <select id="languageSelectorModal" onchange="changeLanguage(this.value)">
           <option value="es">Español</option>
           <option value="en">English</option>
         </select>
+        <!-- Aquí puedes agregar más opciones -->
+        <br><br>
         <button onclick="cerrarModalAjustes()" data-i18n="close">Cerrar</button>
       </div>
     </div>
-
   </main>
 
   <script>
@@ -278,6 +297,12 @@
       }
     };
 
+    function toggleAjustesMenu() {
+      const menu = document.getElementById("ajustesMenu");
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+      menu.style.flexDirection = "column";
+    }
+
     function mostrarModalConsulta() {
       const codigo = prompt("Ingresa tu código de referido:");
       if (!codigo) return;
@@ -306,15 +331,15 @@
     }
 
     function mostrarModalAjustes() {
-      document.getElementById("ajustesModal").style.display = "flex";
-    }
-
-    function cerrarModalAjustes() {
-      document.getElementById("ajustesModal").style.display = "none";
+      document.getElementById("modal-ajustes").style.display = "flex";
     }
 
     function cerrarModal() {
       document.getElementById("modal").style.display = "none";
+    }
+
+    function cerrarModalAjustes() {
+      document.getElementById("modal-ajustes").style.display = "none";
     }
 
     function changeLanguage(lang) {
