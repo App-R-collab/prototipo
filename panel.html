@@ -2,8 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel del Usuario</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --verde: #00c851;
@@ -28,7 +29,7 @@
     }
 
     main {
-      max-width: 700px;
+      max-width: 800px;
       margin: auto;
       background: white;
       margin-top: 2rem;
@@ -80,7 +81,7 @@
       padding-bottom: 0.5rem;
     }
 
-    button {
+    button, .boton-copiar, .boton-invitar {
       margin-top: 20px;
       background-color: #e74c3c;
       color: white;
@@ -90,8 +91,25 @@
       cursor: pointer;
     }
 
-    button:hover {
+    button:hover, .boton-copiar:hover, .boton-invitar:hover {
       background-color: #c0392b;
+    }
+
+    .barra-progreso {
+      margin-top: 20px;
+    }
+
+    .acciones {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    canvas {
+      margin-top: 30px;
+      width: 100% !important;
+      max-height: 250px;
     }
   </style>
 </head>
@@ -108,6 +126,20 @@
     <div class="dato"><strong>Comisión Directa:</strong> $<span id="comisionDirecta"></span></div>
     <div class="dato"><strong>Comisión Residual:</strong> $<span id="comisionResidual"></span></div>
 
+    <div class="barra-progreso">
+      <label>Progreso hacia siguiente nivel:</label>
+      <progress id="progresoReferidos" value="0" max="5"></progress>
+      <small id="metaTexto"></small>
+    </div>
+
+    <div class="acciones">
+      <button class="boton-copiar" onclick="copiarCodigo()">Copiar Código de Referido</button>
+      <a class="boton-invitar" href="#" id="btnInvitar" target="_blank">Invitar por WhatsApp</a>
+      <button onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
+
+    <canvas id="graficoReferidos"></canvas>
+
     <h3>Referidos Directos</h3>
     <div class="linea-container">
       <div class="linea-col">
@@ -119,8 +151,6 @@
         <div id="referidosLinea2"></div>
       </div>
     </div>
-
-    <button onclick="cerrarSesion()">Cerrar sesión</button>
   </main>
 
   <script>
@@ -128,29 +158,28 @@
     const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
 
     if (!usuario) {
-      window.location.href = "index.html"; // Redirigir si no está logueado
+      window.location.href = "index.html";
     }
 
-    // Mostrar datos del usuario logueado
     document.getElementById("nombreUsuario").textContent = usuario.nombre;
     document.getElementById("correoUsuario").textContent = usuario.correo;
     document.getElementById("codigoUsuario").textContent = usuario.codigo;
     document.getElementById("lineaUsuario").textContent = usuario.linea;
 
-    // Obtener referidos directos
     const referidos = usuarios.filter(u => u.referidoPor === usuario.codigo);
-    document.getElementById("numReferidos").textContent = referidos.length;
-    document.getElementById("comisionDirecta").textContent = referidos.length * 30000;
+    const numReferidos = referidos.length;
+    document.getElementById("numReferidos").textContent = numReferidos;
+    document.getElementById("comisionDirecta").textContent = numReferidos * 30000;
 
-    // Calcular comisión residual
     let residual = 0;
+    const linea2 = [];
     referidos.forEach(ref => {
       const subReferidos = usuarios.filter(u => u.referidoPor === ref.codigo);
       residual += subReferidos.length * 100;
+      linea2.push(...subReferidos);
     });
     document.getElementById("comisionResidual").textContent = residual;
 
-    // Mostrar referidos por línea
     const contLinea1 = document.getElementById("referidosLinea1");
     const contLinea2 = document.getElementById("referidosLinea2");
 
@@ -158,17 +187,49 @@
       const div = document.createElement("div");
       div.className = "referido";
       div.innerHTML = `<strong>${r.nombre}</strong><br><small>${r.correo}</small>`;
-      if (r.linea === "Línea 1") {
-        contLinea1.appendChild(div);
-      } else if (r.linea === "Línea 2") {
-        contLinea2.appendChild(div);
-      }
+      contLinea1.appendChild(div);
     });
+
+    linea2.forEach(r => {
+      const div = document.createElement("div");
+      div.className = "referido";
+      div.innerHTML = `<strong>${r.nombre}</strong><br><small>${r.correo}</small>`;
+      contLinea2.appendChild(div);
+    });
+
+    document.getElementById("progresoReferidos").value = numReferidos;
+    document.getElementById("metaTexto").textContent = `${numReferidos} de 5 referidos para subir de nivel`;
+
+    document.getElementById("btnInvitar").href = `https://wa.me/?text=Hola!%20Reg%C3%ADstrate%20con%20mi%20c%C3%B3digo%20${usuario.codigo}%20en%20nuestra%20plataforma.`;
+
+    function copiarCodigo() {
+      navigator.clipboard.writeText(usuario.codigo);
+      alert("Código copiado al portapapeles");
+    }
 
     function cerrarSesion() {
       localStorage.removeItem("usuarioLogueado");
       window.location.href = "index.html";
     }
+
+    const ctx = document.getElementById("graficoReferidos").getContext("2d");
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Línea 1", "Línea 2"],
+        datasets: [{
+          label: "Cantidad de Referidos",
+          data: [referidos.length, linea2.length],
+          backgroundColor: ["#4caf50", "#8bc34a"]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
   </script>
 </body>
 </html>
