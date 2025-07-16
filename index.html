@@ -2,359 +2,387 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Registro de Referidos</title>
   <style>
     :root {
-      --sombra: rgba(0,0,0,0.1);
-      --fondo-claro: #f9f9f9;
-      --fondo-oscuro: #121212;
-      --texto-claro: #000;
-      --texto-oscuro: #fff;
-      --fondo-elemento-claro: #fff;
-      --fondo-elemento-oscuro: #2c2c2c;
-      --verde: #27ae60;
-      --rojo: #e74c3c;
-      --azul: #2980b9;
+      --sombra: rgba(0, 0, 0, 0.1);
     }
+
     body {
       font-family: sans-serif;
       margin: 0;
-      background: var(--fondo-claro);
-      color: var(--texto-claro);
-      transition: background 0.3s, color 0.3s;
+      background: #f9f9f9;
     }
-    body.tema-oscuro {
-      background: var(--fondo-oscuro);
-      color: var(--texto-oscuro);
-    }
+
     header {
-      background: var(--azul);
-      color: var(--texto-oscuro);
+      background: #2980b9;
+      color: white;
       padding: 1rem;
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
     }
-    .ajustes { cursor: pointer; position: absolute; right: 1rem; top: 1.2rem; }
+
+    .ajustes {
+      cursor: pointer;
+      position: absolute;
+      right: 1rem;
+      top: 1.2rem;
+    }
+
     .ajustes-menu {
       display: none;
       position: absolute;
-      top: 60px; right:1rem;
-      background: var(--fondo-elemento-claro);
+      top: 60px;
+      right: 1rem;
+      background: white;
       box-shadow: 0 0 10px var(--sombra);
       padding: 0.5rem;
       border-radius: 8px;
       flex-direction: column;
       gap: 0.5rem;
-      z-index:100;
     }
-    .ajustes-menu.mostrar { display: flex; }
+
     .ajustes-menu button {
       background: #ecf0f1;
-      border:none;
-      padding:0.5rem;
-      cursor:pointer;
-      border-radius:4px;
+      border: none;
+      padding: 0.5rem;
+      cursor: pointer;
+      border-radius: 4px;
     }
+
     .moneda-container {
-      display:flex; justify-content:center; align-items:center;
-      margin:20px 0; position:relative; z-index:1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      z-index: 1;
+      position: relative;
     }
+
     .moneda-container::after {
-      content:""; position:absolute; bottom:-6px;
-      width:60px; height:6px;
-      background: rgba(0,0,0,0.12);
-      border-radius:50%;
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      width: 60px;
+      height: 6px;
+      background: rgba(0, 0, 0, 0.12);
+      border-radius: 50%;
       filter: blur(4px);
       animation: sombraExpandir 3s ease-in-out infinite;
-      z-index:0;
+      z-index: 0;
     }
+
     .moneda-girando {
-      width:80px; height:80px;
-      animation: flotar 3s ease-in-out infinite,
-                 girar 4s linear infinite,
-                 brillo 2s infinite alternate;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
-      z-index:1;
+      width: 80px;
+      height: 80px;
+      animation: flotar 3s ease-in-out infinite, girar 4s linear infinite, brillo 2s infinite alternate;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+      transition: transform 0.3s ease;
+      z-index: 1;
     }
-    @keyframes flotar { 0%,100%{transform: translateY(0);} 50%{transform:translateY(-10px);} }
-    @keyframes girar { 0%{transform:rotateY(0deg);} 100%{transform:rotateY(360deg);} }
-    @keyframes brillo { 0%{filter: drop-shadow(0 0 4px gold) drop-shadow(0 0 8px gold);} 100%{filter: drop-shadow(0 0 10px white) drop-shadow(0 0 20px gold);} }
-    @keyframes sombraExpandir { 0%,100%{transform:scaleX(1);opacity:0.12;} 50%{transform:scaleX(1.3);opacity:0.08;} }
-    main { padding:1rem; max-width:600px; margin:auto; }
-    form { display:flex; flex-direction:column; gap:0.75rem;
-      background: var(--fondo-elemento-claro);
-      padding:1rem; border-radius:12px;
-      box-shadow:0 2px 10px var(--sombra);
-      margin-bottom:1.5rem;
-      transition: background 0.3s, color 0.3s;
+
+    @keyframes flotar {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
-    body.tema-oscuro form {
-      background: var(--fondo-elemento-oscuro);
+
+    @keyframes girar {
+      0% { transform: rotateY(0deg); }
+      100% { transform: rotateY(360deg); }
     }
-    form input, form select {
-      padding:0.5rem;
-      border:1px solid #ccc;
-      border-radius:6px;
-      background: var(--fondo-elemento-claro);
-      color: var(--texto-claro);
-      transition: background 0.3s, color 0.3s;
+
+    @keyframes brillo {
+      0% { filter: drop-shadow(0 0 4px gold) drop-shadow(0 0 8px gold); }
+      100% { filter: drop-shadow(0 0 10px white) drop-shadow(0 0 20px gold); }
     }
-    body.tema-oscuro form input,
-    body.tema-oscuro form select {
-      background: #444;
-      color: var(--texto-oscuro);
-      border-color: #666;
+
+    @keyframes sombraExpandir {
+      0%, 100% {
+        transform: scaleX(1);
+        opacity: 0.12;
+      }
+      50% {
+        transform: scaleX(1.3);
+        opacity: 0.08;
+      }
     }
+
+    main {
+      padding: 1rem;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px var(--sombra);
+      margin-bottom: 1.5rem;
+    }
+
+    form input[type="text"],
+    form input[type="email"],
+    form input[type="password"],
+    form input[type="file"] {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
     form button {
-      padding:0.5rem;
-      background: var(--verde);
-      color: var(--texto-claro);
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
+      padding: 0.5rem;
+      background: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
-    .lineas-btns { display:flex; gap:1rem; }
+
+    .lineas-btns {
+      display: flex;
+      gap: 1rem;
+    }
+
     #modal, #modal-ajustes {
-      display:none;
-      position:fixed; top:0; left:0; right:0; bottom:0;
-      background:rgba(0,0,0,0.5);
-      justify-content:center; align-items:center;
-      z-index:1000;
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
     }
-    #modal-content, #ajustes-content {
-      background: var(--fondo-elemento-claro);
-      padding:2rem; border-radius:12px;
-      box-shadow:0 2px 20px var(--sombra);
-      max-width:400px;
-      width:90%;
-      color: var(--texto-claro);
-      transition: background 0.3s, color 0.3s;
-    }
-    body.tema-oscuro #modal-content,
-    body.tema-oscuro #ajustes-content {
-      background: var(--fondo-elemento-oscuro);
-      color: var(--texto-oscuro);
-    }
-    #ajustes-content h3 { margin-top:0; }
-    label { margin-top:1rem; }
-    .btn-cerrar {
-      background: var(--rojo);
-      color: var(--texto-claro);
-      border:none;
-      padding:0.5rem 1rem;
-      border-radius:6px;
-      cursor:pointer;
-      margin-top:1rem;
+
+    #modal-content, #modal-ajustes > div {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 20px var(--sombra);
     }
   </style>
 </head>
 <body>
+
   <header>
-    <h1 id="titulo">Registro de Referidos</h1>
+    <h1>Registro de Referidos</h1>
     <div class="ajustes" onclick="toggleAjustesMenu()">⚙️</div>
     <div class="ajustes-menu" id="ajustesMenu">
-      <button onclick="window.location.href='ver_referidos.html'" id="btnVerReferidos">Ver Referidos</button>
-      <button onclick="mostrarModalConsulta()" id="btnConsultarCodigo">Consultar Código</button>
-      <button onclick="mostrarModalAjustes()" id="btnAjustes">Ajustes</button>
+      <button onclick="window.location.href='ver_referidos.html'">Ver Referidos</button>
+      <button onclick="mostrarModalConsulta()">Consultar Código</button>
+      <button onclick="mostrarModalAjustes()">Ajustes</button>
     </div>
   </header>
 
   <div class="moneda-container">
     <div class="moneda-girando">
-      <img src="https://github.com/App-R-collab/prototipo/blob/main/moneda.png?raw=true" alt="Moneda" style="width:100%; height:100%; border-radius:50%;" />
+      <img src="https://github.com/App-R-collab/prototipo/blob/main/moneda.png?raw=true"
+        alt="Moneda"
+        style="width:100%; height:100%; border-radius: 50%;" />
     </div>
   </div>
 
   <main>
     <form id="form-login" style="display:none;">
-      <h2 id="labelIniciar">Iniciar Sesión</h2>
+      <h2>Iniciar Sesión</h2>
       <input type="email" id="loginCorreo" placeholder="Correo electrónico" required />
       <input type="password" id="loginPassword" placeholder="Contraseña" required />
-      <button type="submit" id="btnEntrar">Entrar</button>
+      <button type="submit">Entrar</button>
     </form>
 
-    <div id="panel-usuario" style="display:none;">
-      <p><strong><span id="labelBienvenido">Bienvenido:</span></strong> <span id="nombreUsuario"></span></p>
-      <button onclick="cerrarSesion()" class="btn-cerrar" id="btnCerrarSesion">Cerrar sesión</button>
+    <div id="panel-usuario" style="display:none; background: white; padding: 1em; border-radius: 12px; box-shadow: 0 2px 10px var(--sombra); margin-bottom: 1.5rem;">
+      <p><strong>Bienvenido:</strong> <span id="nombreUsuario"></span></p>
+      <button onclick="cerrarSesion()" style="background-color:#e74c3c;">Cerrar sesión</button>
     </div>
 
     <form id="form-registro">
-      <label><strong id="labelRegistro">Registro:</strong></label>
+      <label for="documento"><strong>Registro:</strong></label>
       <input type="text" id="nombre" placeholder="Nombre completo" required />
       <input type="email" id="correo" placeholder="Correo electrónico" required />
       <input type="password" id="password" placeholder="Contraseña" required />
       <input type="password" id="confirmPassword" placeholder="Confirmar contraseña" required />
       <input type="text" id="codigoReferido" placeholder="Código de referido (opcional)" />
-      <label><strong id="labelCedula">Sube tu cédula:</strong></label>
+      <label for="documento"><strong>Sube tu cédula:</strong></label>
       <input type="file" id="documento" accept="image/*,application/pdf" required />
 
-      <p><strong id="labelLinea">Selecciona una línea:</strong></p>
+      <p><strong>Selecciona una línea:</strong></p>
       <div class="lineas-btns">
         <input type="radio" id="linea1" name="linea" value="Línea 1" required />
         <label for="linea1">Línea 1</label>
         <input type="radio" id="linea2" name="linea" value="Línea 2" />
         <label for="linea2">Línea 2</label>
       </div>
-      <button type="submit" id="btnRegistrarse">Registrarse</button>
+
+      <button type="submit">Registrarse</button>
     </form>
 
     <div id="modal">
       <div id="modal-content">
-        <h3 id="tituloResumen">Resumen de Referidos</h3>
+        <h3>Resumen de Referidos</h3>
         <div id="detalleReferido"></div>
-        <button onclick="cerrarModal()" class="btn-cerrar" id="btnCerrarModal">Cerrar</button>
+        <button onclick="cerrarModal()">Cerrar</button>
       </div>
     </div>
 
+    <!-- MODAL DE AJUSTES -->
     <div id="modal-ajustes">
-      <div id="ajustes-content">
-        <h3 id="tituloAjustes">Ajustes</h3>
-
-        <label for="idiomaSelect" id="labelIdioma">Idioma:</label>
-        <select id="idiomaSelect" onchange="cambiarIdioma(this.value)">
+      <div>
+        <h3>Ajustes</h3>
+        <label for="idiomaSelect"><strong>Idioma:</strong></label>
+        <select id="idiomaSelect" style="width:100%; margin-bottom:1rem; padding:0.5rem;">
           <option value="es">Español</option>
           <option value="en">English</option>
-          <option value="pt">Português</option>
-          <option value="fr">Français</option>
         </select>
 
-        <label for="temaSelect" id="labelTema">Tema:</label>
-        <select id="temaSelect" onchange="cambiarTema(this.value)">
+        <label for="temaSelect"><strong>Tema:</strong></label>
+        <select id="temaSelect" style="width:100%; margin-bottom:1rem; padding:0.5rem;">
           <option value="claro">Claro</option>
           <option value="oscuro">Oscuro</option>
-          <option value="sistema">Sistema</option>
         </select>
 
-        <button onclick="cerrarModalAjustes()" class="btn-cerrar" id="btnCerrarAjustes">Cerrar</button>
+        <button onclick="guardarAjustes()" style="margin-right: 1rem;">Guardar</button>
+        <button onclick="cerrarModalAjustes()" style="background-color:#e74c3c; color:white;">Cancelar</button>
       </div>
     </div>
   </main>
 
   <script>
-    const textos = {
-      es: {
-        titulo: "Registro de Referidos",
-        labelIniciar: "Iniciar Sesión",
-        btnEntrar: "Entrar",
-        labelBienvenido: "Bienvenido:",
-        btnCerrarSesion: "Cerrar sesión",
-        labelRegistro: "Registro:",
-        labelCedula: "Sube tu cédula:",
-        labelLinea: "Selecciona una línea:",
-        btnRegistrarse: "Registrarse",
-        btnVerReferidos: "Ver Referidos",
-        btnConsultarCodigo: "Consultar Código",
-        btnAjustes: "Ajustes",
-        tituloResumen: "Resumen de Referidos",
-        btnCerrarModal: "Cerrar",
-        tituloAjustes: "Ajustes",
-        labelIdioma: "Idioma:",
-        labelTema: "Tema:"
-      },
-      en: {
-        titulo: "Referral Registration",
-        labelIniciar: "Login",
-        btnEntrar: "Enter",
-        labelBienvenido: "Welcome:",
-        btnCerrarSesion: "Logout",
-        labelRegistro: "Sign Up:",
-        labelCedula: "Upload ID:",
-        labelLinea: "Select a line:",
-        btnRegistrarse: "Register",
-        btnVerReferidos: "View Referrals",
-        btnConsultarCodigo: "Check Code",
-        btnAjustes: "Settings",
-        tituloResumen: "Referral Summary",
-        btnCerrarModal: "Close",
-        tituloAjustes: "Settings",
-        labelIdioma: "Language:",
-        labelTema: "Theme:"
-      },
-      pt: {
-        titulo: "Registro de Referidos",
-        labelIniciar: "Entrar",
-        btnEntrar: "Entrar",
-        labelBienvenido: "Bem-vindo:",
-        btnCerrarSesion: "Sair",
-        labelRegistro: "Registro:",
-        labelCedula: "Envie seu RG:",
-        labelLinea: "Escolha uma linha:",
-        btnRegistrarse: "Registrar",
-        btnVerReferidos: "Ver Referidos",
-        btnConsultarCodigo: "Consultar Código",
-        btnAjustes: "Configurações",
-        tituloResumen: "Resumo de Referidos",
-        btnCerrarModal: "Fechar",
-        tituloAjustes: "Configurações",
-        labelIdioma: "Idioma:",
-        labelTema: "Tema:"
-      },
-      fr: {
-        titulo: "Enregistrement de Parrainage",
-        labelIniciar: "Connexion",
-        btnEntrar: "Entrer",
-        labelBienvenido: "Bienvenue:",
-        btnCerrarSesion: "Déconnexion",
-        labelRegistro: "Inscription:",
-        labelCedula: "Téléchargez pièce d’identité:",
-        labelLinea: "Sélectionnez une ligne:",
-        btnRegistrarse: "S’inscrire",
-        btnVerReferidos: "Voir les parrainages",
-        btnConsultarCodigo: "Consulter le code",
-        btnAjustes: "Paramètres",
-        tituloResumen: "Résumé des parrainages",
-        btnCerrarModal: "Fermer",
-        tituloAjustes: "Paramètres",
-        labelIdioma: "Langue:",
-        labelTema: "Thème:"
-      }
-    };
-
     function toggleAjustesMenu() {
-      document.getElementById("ajustesMenu").classList.toggle("mostrar");
+      const menu = document.getElementById("ajustesMenu");
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
     }
+
     function mostrarModalConsulta() {
-      // igual...
+      const codigo = prompt("Ingresa tu código de referido:");
+      if (!codigo) return;
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const usuario = usuarios.find(u => u.codigo === codigo);
+      const detalle = document.getElementById("detalleReferido");
+      if (usuario) {
+        const referidos = usuarios.filter(r => r.referidoPor === codigo);
+        const comisionDirecta = referidos.length * 30000;
+        const comisionResidual = referidos.reduce((total, ref) => {
+          const sub = usuarios.filter(u => u.referidoPor === ref.codigo);
+          return total + (sub.length * 100);
+        }, 0);
+
+        detalle.innerHTML = `
+          <p><strong>Nombre:</strong> ${usuario.nombre}</p>
+          <p><strong>Correo:</strong> ${usuario.correo}</p>
+          <p><strong>Línea:</strong> ${usuario.linea}</p>
+          <p><strong>Referidos directos:</strong> ${referidos.length}</p>
+          <p><strong>Comisión directa:</strong> $${comisionDirecta}</p>
+          <p><strong>Ganancia residual:</strong> $${comisionResidual}</p>
+        `;
+        document.getElementById("modal").style.display = "flex";
+      } else {
+        alert("Código no encontrado");
+      }
     }
+
     function cerrarModal() {
       document.getElementById("modal").style.display = "none";
     }
+
     function mostrarModalAjustes() {
       document.getElementById("modal-ajustes").style.display = "flex";
+      document.getElementById("idiomaSelect").value = localStorage.getItem("idioma") || "es";
+      document.getElementById("temaSelect").value = localStorage.getItem("tema") || "claro";
     }
+
     function cerrarModalAjustes() {
       document.getElementById("modal-ajustes").style.display = "none";
     }
-    function cambiarIdioma(idioma) {
+
+    function guardarAjustes() {
+      const idioma = document.getElementById("idiomaSelect").value;
+      const tema = document.getElementById("temaSelect").value;
       localStorage.setItem("idioma", idioma);
-      aplicarIdioma(idioma);
+      localStorage.setItem("tema", tema);
+      aplicarTema(tema);
+      cerrarModalAjustes();
     }
-    function aplicarIdioma(id) {
-      const txt = textos[id] || textos.es;
-      Object.keys(txt).forEach(k => {
-        const el = document.getElementById(k);
-        if (el) el.textContent = txt[k];
+
+    function aplicarTema(tema) {
+      const fondo = tema === "oscuro" ? "#1e1e1e" : "#f9f9f9";
+      const texto = tema === "oscuro" ? "white" : "black";
+      const elementos = document.querySelectorAll("body, form, #panel-usuario, .ajustes-menu, #modal-content, #modal-ajustes > div");
+      elementos.forEach(el => {
+        el.style.background = fondo;
+        el.style.color = texto;
       });
-    }
-    function cambiarTema(val) {
-      localStorage.setItem("tema", val);
-      aplicarTema(val);
-    }
-    function aplicarTema(val) {
-      document.body.classList.remove("tema-oscuro");
-      const modo = val === "sistema" ?
-        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "oscuro" : "claro")
-        : val;
-      if (modo === "oscuro") document.body.classList.add("tema-oscuro");
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      aplicarTema(localStorage.getItem("tema") || "claro");
-      aplicarIdioma(localStorage.getItem("idioma") || "es");
-      // resto del init...
+      const usuarioLogueado = JSON.parse(localStorage.getItem("usuarioLogueado"));
+      if (usuarioLogueado) {
+        mostrarPanel(usuarioLogueado);
+      } else {
+        document.getElementById("form-login").style.display = "block";
+      }
+
+      const temaGuardado = localStorage.getItem("tema") || "claro";
+      aplicarTema(temaGuardado);
+    });
+
+    document.getElementById("form-login").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const correo = document.getElementById("loginCorreo").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const usuario = usuarios.find(u => u.correo === correo && u.password === password);
+      if (usuario) {
+        localStorage.setItem("usuarioLogueado", JSON.stringify(usuario));
+        window.location.href = "panel.html";
+      } else {
+        alert("Correo o contraseña incorrectos.");
+      }
+    });
+
+    function mostrarPanel(usuario) {
+      document.getElementById("form-login").style.display = "none";
+      document.getElementById("panel-usuario").style.display = "block";
+      document.getElementById("form-registro").style.display = "none";
+      document.getElementById("nombreUsuario").textContent = usuario.nombre;
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem("usuarioLogueado");
+      location.reload();
+    }
+
+    document.getElementById("form-registro").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const nombre = document.getElementById("nombre").value.trim();
+      const correo = document.getElementById("correo").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const codigoReferido = document.getElementById("codigoReferido").value.trim();
+      const linea = document.querySelector('input[name="linea"]:checked')?.value;
+      if (password !== confirmPassword) {
+        alert("Las contraseñas no coinciden.");
+        return;
+      }
+      const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const usuario = { nombre, correo, password, codigo, referidoPor: codigoReferido || null, linea };
+      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      if (usuarios.find(u => u.correo === correo)) {
+        alert("Este correo ya está registrado.");
+        return;
+      }
+      usuarios.push(usuario);
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+      alert(`Registro exitoso. Tu código de referido es: ${codigo}`);
+      this.reset();
     });
   </script>
 </body>
