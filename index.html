@@ -56,31 +56,6 @@
       margin: auto;
     }
 
-    .moneda-container {
-      display: flex;
-      justify-content: center;
-      margin-top: 1.5rem;
-    }
-
-    .moneda-girando {
-      width: 100px;
-      height: 100px;
-      animation: girar 2s linear infinite, flotar 3s ease-in-out infinite;
-      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)) brightness(1.1);
-      box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
-      border-radius: 50%;
-    }
-
-    @keyframes girar {
-      0% { transform: rotateY(0deg); }
-      100% { transform: rotateY(360deg); }
-    }
-
-    @keyframes flotar {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-15px); }
-    }
-
     form {
       display: flex;
       flex-direction: column;
@@ -133,9 +108,35 @@
       border-radius: 12px;
       box-shadow: 0 2px 20px var(--sombra);
     }
+
+    /* 👇 MONEDA flotando y girando */
+    .moneda-girando {
+      width: 80px;
+      height: 80px;
+      margin: 1rem auto;
+      animation: flotarYGirar 4s infinite ease-in-out;
+      transform-style: preserve-3d;
+    }
+
+    @keyframes flotarYGirar {
+      0% {
+        transform: translateY(0) rotateY(0deg);
+      }
+      50% {
+        transform: translateY(-10px) rotateY(180deg);
+      }
+      100% {
+        transform: translateY(0) rotateY(360deg);
+      }
+    }
   </style>
 </head>
 <body>
+
+  <!-- 👇 Moneda centrada -->
+  <div class="moneda-girando">
+    <img src="https://github.com/App-R-collab/prototipo/blob/main/moneda.png?raw=true" alt="Moneda" style="width:100%; height:100%; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border-radius: 50%;" />
+  </div>
 
   <header>
     <h1>Registro de Referidos</h1>
@@ -146,10 +147,6 @@
       <button onclick="alert('Ajustes en desarrollo')">Ajustes</button>
     </div>
   </header>
-
-  <div class="moneda-container">
-    <img src="https://github.com/App-R-collab/prototipo/blob/main/moneda.png?raw=true" alt="Moneda" class="moneda-girando" />
-  </div>
 
   <main>
     <!-- LOGIN FORM -->
@@ -236,7 +233,7 @@
       document.getElementById("modal").style.display = "none";
     }
 
-    // LOGIN
+    // ----------- LOGIN ------------
     document.addEventListener("DOMContentLoaded", () => {
       const usuarioLogueado = JSON.parse(localStorage.getItem("usuarioLogueado"));
       if (usuarioLogueado) {
@@ -255,6 +252,7 @@
 
       if (usuario) {
         localStorage.setItem("usuarioLogueado", JSON.stringify(usuario));
+        // Redirigir al panel
         window.location.href = "panel.html";
       } else {
         alert("Correo o contraseña incorrectos.");
@@ -273,7 +271,7 @@
       location.reload();
     }
 
-    // REGISTRO
+    // ----------- REGISTRO ------------
     document.getElementById("form-registro").addEventListener("submit", function (e) {
       e.preventDefault();
 
