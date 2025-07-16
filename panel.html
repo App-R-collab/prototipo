@@ -29,44 +29,37 @@
       text-align: center;
     }
 
-    .acciones {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 1rem;
-      background-color: #fff;
-    }
-
-    .acciones button {
-      background-color: var(--verde);
-      color: white;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-    }
-
-    .acciones button:hover {
-      background-color: #00993d;
-    }
-
     main {
       max-width: 800px;
       margin: auto;
       background: white;
       margin-top: 1rem;
-      padding: 2rem;
+      padding: 1.5rem;
       border-radius: 12px;
       box-shadow: 0 2px 10px var(--sombra);
     }
 
-    h2, h3, h4 {
-      margin-top: 0;
+    .botones-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+
+    .botones-container button {
+      flex: 1 1 30%;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .botones-container button i {
+      margin-right: 5px;
     }
 
     .dato {
@@ -78,70 +71,60 @@
       width: 160px;
     }
 
-    .referido {
-      background: #f0f0f0;
-      padding: 10px;
-      border-left: 4px solid var(--verde);
-      margin: 8px 0;
+    .logros {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 1rem;
       border-radius: 8px;
+      margin-bottom: 20px;
     }
 
-    .linea-container {
+    .logros h3 {
+      margin-top: 0;
+    }
+
+    .grafico-container {
+      margin-top: 2rem;
+    }
+
+    .referido {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 10px;
+      margin: 10px;
+      background: #f9f9f9;
+      text-align: center;
+      position: relative;
+    }
+
+    .referido::before {
+      content: "";
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      width: 2px;
+      height: 20px;
+      background-color: #ccc;
+      transform: translateX(-50%);
+    }
+
+    .arbol-container {
       display: flex;
-      gap: 20px;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .arbol-nivel {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
       flex-wrap: wrap;
     }
 
-    .linea-col {
-      flex: 1;
-      min-width: 300px;
-      background-color: #f9f9f9;
-      border: 1px solid var(--gris);
-      padding: 1rem;
-      border-radius: 10px;
-    }
-
-    .linea-col h4 {
-      margin-top: 0;
-      color: var(--verde);
-      border-bottom: 1px solid var(--gris);
-      padding-bottom: 0.5rem;
-    }
-
-    .logros {
-      margin-top: 2rem;
-      background-color: #eef9f0;
-      padding: 1rem;
-      border-radius: 10px;
-    }
-
-    .logro {
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-
-    .grafico {
-      margin-top: 2rem;
-    }
-
-    .arbol {
-      margin-top: 2rem;
-    }
-
-    .arbol ul {
-      list-style: none;
-      padding-left: 20px;
-    }
-
-    button.cerrar {
-      background-color: #e74c3c;
-      margin-top: 2rem;
-    }
-
     @media (max-width: 600px) {
-      .acciones {
+      .botones-container {
         flex-direction: column;
-        align-items: stretch;
       }
     }
   </style>
@@ -149,14 +132,12 @@
 <body>
   <header>
     <h1>Panel del Usuario</h1>
+    <div class="botones-container">
+      <button onclick="invitarWhatsapp()"><i class="fab fa-whatsapp"></i>Invitar por WhatsApp</button>
+      <button onclick="window.location.reload()">Actualizar</button>
+      <button onclick="cerrarSesion()">Cerrar Sesión</button>
+    </div>
   </header>
-
-  <div class="acciones">
-    <button onclick="invitarWhatsapp()"><i class="fab fa-whatsapp"></i> Invitar por WhatsApp</button>
-    <button onclick="copiarCodigo()">📋 Copiar Código</button>
-    <button onclick="cerrarSesion()">🔒 Cerrar sesión</button>
-  </div>
-
   <main>
     <h2>Bienvenido, <span id="nombreUsuario"></span></h2>
     <div class="dato"><strong>Correo:</strong> <span id="correoUsuario"></span></div>
@@ -166,32 +147,14 @@
     <div class="dato"><strong>Comisión Directa:</strong> $<span id="comisionDirecta"></span></div>
     <div class="dato"><strong>Comisión Residual:</strong> $<span id="comisionResidual"></span></div>
 
-    <h3>Referidos Directos</h3>
-    <div class="linea-container">
-      <div class="linea-col">
-        <h4>Línea 1</h4>
-        <div id="referidosLinea1"></div>
-      </div>
-      <div class="linea-col">
-        <h4>Línea 2</h4>
-        <div id="referidosLinea2"></div>
-      </div>
+    <div class="logros" id="logros"></div>
+
+    <div class="grafico-container">
+      <canvas id="graficoComisiones"></canvas>
     </div>
 
-    <div class="logros">
-      <h3>Logros</h3>
-      <div id="logrosUsuario"></div>
-    </div>
-
-    <div class="grafico">
-      <h3>Gráfico de Comisiones</h3>
-      <canvas id="graficoComisiones" width="400" height="200"></canvas>
-    </div>
-
-    <div class="arbol">
-      <h3>Árbol de Referidos</h3>
-      <ul id="arbolReferidos"></ul>
-    </div>
+    <h3>Árbol de Referidos</h3>
+    <div class="arbol-container" id="arbolReferidos"></div>
   </main>
 
   <script>
@@ -206,75 +169,72 @@
     document.getElementById("lineaUsuario").textContent = usuario.linea;
 
     const referidos = usuarios.filter(u => u.referidoPor === usuario.codigo);
-    document.getElementById("numReferidos").textContent = referidos.length;
     const comisionDirecta = referidos.length * 30000;
-    document.getElementById("comisionDirecta").textContent = comisionDirecta;
-
     let residual = 0;
+
     referidos.forEach(ref => {
-      const subRef = usuarios.filter(u => u.referidoPor === ref.codigo);
-      residual += subRef.length * 100;
+      const subReferidos = usuarios.filter(u => u.referidoPor === ref.codigo);
+      residual += subReferidos.length * 100;
     });
+
+    document.getElementById("numReferidos").textContent = referidos.length;
+    document.getElementById("comisionDirecta").textContent = comisionDirecta;
     document.getElementById("comisionResidual").textContent = residual;
 
-    // Mostrar referidos
-    const cont1 = document.getElementById("referidosLinea1");
-    const cont2 = document.getElementById("referidosLinea2");
-    referidos.forEach(r => {
-      const div = document.createElement("div");
-      div.className = "referido";
-      div.innerHTML = `<strong>${r.nombre}</strong><br><small>${r.correo}</small>`;
-      (r.linea === "Línea 1" ? cont1 : cont2).appendChild(div);
-    });
-
     // Logros
-    const logros = document.getElementById("logrosUsuario");
-    if (referidos.length > 0) logros.innerHTML += `<div class="logro">🎉 ¡Primer referido conseguido!</div>`;
-    if (comisionDirecta >= 90000) logros.innerHTML += `<div class="logro">💰 Has ganado $${comisionDirecta} en comisiones directas</div>`;
-    if (residual > 0) logros.innerHTML += `<div class="logro">📈 Has generado ingresos residuales</div>`;
+    const logros = [];
+    if (referidos.length >= 1) logros.push("🎉 Primer referido conseguido");
+    if (comisionDirecta + residual > 0) logros.push(`💰 Has ganado $${comisionDirecta + residual}`);
+
+    const logrosDiv = document.getElementById("logros");
+    if (logros.length === 0) {
+      logrosDiv.innerHTML = "😔 No has conseguido ningún logro todavía.";
+    } else {
+      logrosDiv.innerHTML = `<h3>Logros</h3><ul>${logros.map(l => `<li>${l}</li>`).join("")}</ul>`;
+    }
 
     // Gráfico
     new Chart(document.getElementById("graficoComisiones"), {
-      type: 'bar',
+      type: "bar",
       data: {
-        labels: ['Directa', 'Residual'],
+        labels: ["Directas", "Residual"],
         datasets: [{
-          label: 'Comisiones',
-          data: [comisionDirecta, residual],
-          backgroundColor: ['#00c851', '#33b5e5']
+          label: "Comisiones",
+          data: [comisionDirecta, residual || 0.1],
+          backgroundColor: ["#00c851", "#33b5e5"]
         }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
       }
     });
 
-    // Árbol de referidos
-    function construirArbol(padreCodigo, nivel = 0) {
-      const hijos = usuarios.filter(u => u.referidoPor === padreCodigo);
-      if (hijos.length === 0) return '';
-      let html = '<ul>';
-      hijos.forEach(h => {
-        html += `<li><strong>${h.nombre}</strong> (${h.correo}) - ${h.linea}`;
-        html += construirArbol(h.codigo, nivel + 1);
-        html += '</li>';
-      });
-      html += '</ul>';
-      return html;
-    }
-    document.getElementById("arbolReferidos").innerHTML = construirArbol(usuario.codigo);
+    // Árbol
+    const arbol = document.getElementById("arbolReferidos");
+    const nivel1 = document.createElement("div");
+    nivel1.className = "arbol-nivel";
+    referidos.forEach(ref => {
+      const div = document.createElement("div");
+      div.className = "referido";
+      div.innerHTML = `<strong>${ref.nombre}</strong><br><small>${ref.correo}</small><br><em>${ref.linea}</em>`;
+      nivel1.appendChild(div);
+    });
+    arbol.appendChild(nivel1);
 
     function cerrarSesion() {
       localStorage.removeItem("usuarioLogueado");
       window.location.href = "index.html";
     }
 
-    function copiarCodigo() {
-      navigator.clipboard.writeText(usuario.codigo);
-      alert("¡Código copiado al portapapeles!");
-    }
-
     function invitarWhatsapp() {
-      const mensaje = `Únete a esta app usando mi código de referido: ${usuario.codigo}`;
-      const enlace = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-      window.open(enlace, '_blank');
+      const mensaje = `¡Únete a nuestra plataforma! Regístrate con mi código: ${usuario.codigo}`;
+      const url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+      window.open(url, '_blank');
     }
   </script>
 </body>
