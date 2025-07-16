@@ -56,10 +56,41 @@
       padding: 10px;
       border-radius: 6px;
       cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .botones-container button:hover {
+      background-color: #0056b3;
     }
 
     .botones-container button i {
       margin-right: 5px;
+    }
+
+    .btn-whatsapp {
+      background-color: #25d366;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px auto;
+      max-width: 300px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-whatsapp:hover {
+      background-color: #1ebe5d;
+    }
+
+    .btn-whatsapp i {
+      font-size: 20px;
+      margin-right: 10px;
     }
 
     .dato {
@@ -126,6 +157,10 @@
       .botones-container {
         flex-direction: column;
       }
+
+      .btn-whatsapp {
+        width: 90%;
+      }
     }
   </style>
 </head>
@@ -133,11 +168,16 @@
   <header>
     <h1>Panel del Usuario</h1>
     <div class="botones-container">
-      <button onclick="invitarWhatsapp()"><i class="fab fa-whatsapp"></i>Invitar por WhatsApp</button>
-      <button onclick="window.location.reload()">Actualizar</button>
-      <button onclick="cerrarSesion()">Cerrar Sesión</button>
+      <button onclick="window.location.reload()"><i class="fas fa-sync-alt"></i>Actualizar</button>
+      <button onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i>Cerrar Sesión</button>
     </div>
   </header>
+
+  <!-- Botón de WhatsApp FUERA del panel -->
+  <button class="btn-whatsapp" onclick="invitarWhatsapp()">
+    <i class="fab fa-whatsapp"></i> Invitar por WhatsApp
+  </button>
+
   <main>
     <h2>Bienvenido, <span id="nombreUsuario"></span></h2>
     <div class="dato"><strong>Correo:</strong> <span id="correoUsuario"></span></div>
@@ -194,13 +234,16 @@
     }
 
     // Gráfico
+    const dataComisiones = [comisionDirecta, residual];
+    const hayDatos = dataComisiones.some(valor => valor > 0);
+
     new Chart(document.getElementById("graficoComisiones"), {
       type: "bar",
       data: {
         labels: ["Directas", "Residual"],
         datasets: [{
           label: "Comisiones",
-          data: [comisionDirecta, residual || 0.1],
+          data: hayDatos ? dataComisiones : [0.1, 0.1],
           backgroundColor: ["#00c851", "#33b5e5"]
         }]
       },
@@ -208,8 +251,14 @@
         responsive: true,
         scales: {
           y: {
-            beginAtZero: true
+            beginAtZero: true,
+            ticks: {
+              stepSize: 10000
+            }
           }
+        },
+        plugins: {
+          legend: { display: false }
         }
       }
     });
