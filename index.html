@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Registro de Referidos</title>
+  <title>Referral Registration</title>
   <style>
     :root {
-      --sombra: rgba(0, 0, 0, 0.1);
+      --shadow: rgba(0, 0, 0, 0.1);
     }
 
     body {
@@ -25,27 +25,27 @@
       position: relative;
     }
 
-    .ajustes {
+    .settings {
       cursor: pointer;
       position: absolute;
       right: 1rem;
       top: 1.2rem;
     }
 
-    .ajustes-menu {
+    .settings-menu {
       display: none;
       position: absolute;
       top: 60px;
       right: 1rem;
       background: white;
-      box-shadow: 0 0 10px var(--sombra);
+      box-shadow: 0 0 10px var(--shadow);
       padding: 0.5rem;
       border-radius: 8px;
       flex-direction: column;
       gap: 0.5rem;
     }
 
-    .ajustes-menu button {
+    .settings-menu button {
       background: #ecf0f1;
       border: none;
       padding: 0.5rem;
@@ -53,7 +53,7 @@
       border-radius: 4px;
     }
 
-    .moneda-container {
+    .coin-container {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -63,7 +63,7 @@
       position: relative;
     }
 
-    .moneda-container::after {
+    .coin-container::after {
       content: "";
       position: absolute;
       bottom: -6px;
@@ -72,30 +72,30 @@
       background: rgba(0, 0, 0, 0.12);
       border-radius: 50%;
       filter: blur(4px);
-      animation: sombraExpandir 3s ease-in-out infinite;
+      animation: shadowExpand 3s ease-in-out infinite;
       z-index: 0;
     }
 
-    .moneda-girando {
+    .spinning-coin {
       width: 80px;
       height: 80px;
-      animation: flotar 3s ease-in-out infinite, girar 4s linear infinite, brillo 2s infinite alternate;
+      animation: float 3s ease-in-out infinite, spin 4s linear infinite, glow 2s infinite alternate;
       filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
       transition: transform 0.3s ease;
       z-index: 1;
     }
 
-    @keyframes flotar {
+    @keyframes float {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-10px); }
     }
 
-    @keyframes girar {
+    @keyframes spin {
       0% { transform: rotateY(0deg); }
       100% { transform: rotateY(360deg); }
     }
 
-    @keyframes brillo {
+    @keyframes glow {
       0% {
         filter: drop-shadow(0 0 4px gold) drop-shadow(0 0 8px gold);
       }
@@ -104,7 +104,7 @@
       }
     }
 
-    @keyframes sombraExpandir {
+    @keyframes shadowExpand {
       0%, 100% {
         transform: scaleX(1);
         opacity: 0.12;
@@ -128,7 +128,7 @@
       background: white;
       padding: 1rem;
       border-radius: 12px;
-      box-shadow: 0 2px 10px var(--sombra);
+      box-shadow: 0 2px 10px var(--shadow);
       margin-bottom: 1.5rem;
     }
 
@@ -150,7 +150,7 @@
       cursor: pointer;
     }
 
-    .lineas-btns {
+    .lines-btns {
       display: flex;
       gap: 1rem;
     }
@@ -171,120 +171,115 @@
       background: white;
       padding: 2rem;
       border-radius: 12px;
-      box-shadow: 0 2px 20px var(--sombra);
+      box-shadow: 0 2px 20px var(--shadow);
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Registro de Referidos</h1>
-    <div class="ajustes" onclick="toggleAjustesMenu()">⚙️</div>
-    <div class="ajustes-menu" id="ajustesMenu">
-      <button onclick="window.location.href='ver_referidos.html'">Ver Referidos</button>
-      <button onclick="mostrarModalConsulta()">Consultar Código</button>
-      <button onclick="alert('Ajustes en desarrollo')">Ajustes</button>
+    <h1>Referral Registration</h1>
+    <div class="settings" onclick="toggleSettingsMenu()">⚙️</div>
+    <div class="settings-menu" id="settingsMenu">
+      <button onclick="window.location.href='ver_referidos.html'">View Referrals</button>
+      <button onclick="showReferralModal()">Check Code</button>
+      <button onclick="alert('Settings in development')">Settings</button>
     </div>
   </header>
 
-  <!-- MONEDA FUERA DEL HEADER -->
-  <div class="moneda-container">
-    <div class="moneda-girando">
+  <div class="coin-container">
+    <div class="spinning-coin">
       <img src="https://github.com/App-R-collab/prototipo/blob/main/moneda.png?raw=true"
-        alt="Moneda"
+        alt="Coin"
         style="width:100%; height:100%; border-radius: 50%;" />
     </div>
   </div>
 
   <main>
-    <!-- LOGIN FORM -->
     <form id="form-login" style="display:none;">
-      <h2>Iniciar Sesión</h2>
-      <input type="email" id="loginCorreo" placeholder="Correo electrónico" required />
-      <input type="password" id="loginPassword" placeholder="Contraseña" required />
-      <button type="submit">Entrar</button>
+      <h2>Login</h2>
+      <input type="email" id="loginCorreo" placeholder="Email" required />
+      <input type="password" id="loginPassword" placeholder="Password" required />
+      <button type="submit">Login</button>
     </form>
 
-    <!-- PANEL USUARIO -->
-    <div id="panel-usuario" style="display:none; background: white; padding: 1em; border-radius: 12px; box-shadow: 0 2px 10px var(--sombra); margin-bottom: 1.5rem;">
-      <p><strong>Bienvenido:</strong> <span id="nombreUsuario"></span></p>
-      <button onclick="cerrarSesion()" style="background-color:#e74c3c;">Cerrar sesión</button>
+    <div id="panel-usuario" style="display:none; background: white; padding: 1em; border-radius: 12px; box-shadow: 0 2px 10px var(--shadow); margin-bottom: 1.5rem;">
+      <p><strong>Welcome:</strong> <span id="nombreUsuario"></span></p>
+      <button onclick="cerrarSesion()" style="background-color:#e74c3c;">Logout</button>
     </div>
 
-    <!-- REGISTRO FORM -->
     <form id="form-registro">
-      <label for="documento"><strong>Registro:</strong></label>
-      <input type="text" id="nombre" placeholder="Nombre completo" required />
-      <input type="email" id="correo" placeholder="Correo electrónico" required />
-      <input type="password" id="password" placeholder="Contraseña" required />
-      <input type="password" id="confirmPassword" placeholder="Confirmar contraseña" required />
-      <input type="text" id="codigoReferido" placeholder="Código de referido (opcional)" />
-      <label for="documento"><strong>Sube tu cédula:</strong></label>
+      <label for="documento"><strong>Register:</strong></label>
+      <input type="text" id="nombre" placeholder="Full Name" required />
+      <input type="email" id="correo" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+      <input type="text" id="codigoReferido" placeholder="Referral Code (optional)" />
+      <label for="documento"><strong>Upload your ID:</strong></label>
       <input type="file" id="documento" accept="image/*,application/pdf" required />
 
-      <p><strong>Selecciona una línea:</strong></p>
-      <div class="lineas-btns">
-        <input type="radio" id="linea1" name="linea" value="Línea 1" required />
-        <label for="linea1">Línea 1</label>
-        <input type="radio" id="linea2" name="linea" value="Línea 2" />
-        <label for="linea2">Línea 2</label>
+      <p><strong>Select a line:</strong></p>
+      <div class="lines-btns">
+        <input type="radio" id="linea1" name="linea" value="Line 1" required />
+        <label for="linea1">Line 1</label>
+        <input type="radio" id="linea2" name="linea" value="Line 2" />
+        <label for="linea2">Line 2</label>
       </div>
 
-      <button type="submit">Registrarse</button>
+      <button type="submit">Register</button>
     </form>
 
-    <!-- MODAL -->
     <div id="modal">
       <div id="modal-content">
-        <h3>Resumen de Referidos</h3>
+        <h3>Referral Summary</h3>
         <div id="detalleReferido"></div>
-        <button onclick="cerrarModal()">Cerrar</button>
+        <button onclick="closeModal()">Close</button>
       </div>
     </div>
   </main>
 
   <script>
-    function toggleAjustesMenu() {
-      const menu = document.getElementById("ajustesMenu");
+    function toggleSettingsMenu() {
+      const menu = document.getElementById("settingsMenu");
       menu.style.display = menu.style.display === "flex" ? "none" : "flex";
     }
 
-    function mostrarModalConsulta() {
-      const codigo = prompt("Ingresa tu código de referido:");
-      if (!codigo) return;
-      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-      const usuario = usuarios.find(u => u.codigo === codigo);
-      const detalle = document.getElementById("detalleReferido");
-      if (usuario) {
-        const referidos = usuarios.filter(r => r.referidoPor === codigo);
-        const comisionDirecta = referidos.length * 30000;
-        const comisionResidual = referidos.reduce((total, ref) => {
-          const sub = usuarios.filter(u => u.referidoPor === ref.codigo);
+    function showReferralModal() {
+      const code = prompt("Enter your referral code:");
+      if (!code) return;
+      const users = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const user = users.find(u => u.codigo === code);
+      const detail = document.getElementById("detalleReferido");
+      if (user) {
+        const direct = users.filter(r => r.referidoPor === code);
+        const directCommission = direct.length * 30000;
+        const residual = direct.reduce((total, ref) => {
+          const sub = users.filter(u => u.referidoPor === ref.codigo);
           return total + (sub.length * 100);
         }, 0);
 
-        detalle.innerHTML = `
-          <p><strong>Nombre:</strong> ${usuario.nombre}</p>
-          <p><strong>Correo:</strong> ${usuario.correo}</p>
-          <p><strong>Línea:</strong> ${usuario.linea}</p>
-          <p><strong>Referidos directos:</strong> ${referidos.length}</p>
-          <p><strong>Comisión directa:</strong> $${comisionDirecta}</p>
-          <p><strong>Ganancia residual:</strong> $${comisionResidual}</p>
+        detail.innerHTML = `
+          <p><strong>Name:</strong> ${user.nombre}</p>
+          <p><strong>Email:</strong> ${user.correo}</p>
+          <p><strong>Line:</strong> ${user.linea}</p>
+          <p><strong>Direct Referrals:</strong> ${direct.length}</p>
+          <p><strong>Direct Commission:</strong> $${directCommission}</p>
+          <p><strong>Residual Earnings:</strong> $${residual}</p>
         `;
         document.getElementById("modal").style.display = "flex";
       } else {
-        alert("Código no encontrado");
+        alert("Code not found");
       }
     }
 
-    function cerrarModal() {
+    function closeModal() {
       document.getElementById("modal").style.display = "none";
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      const usuarioLogueado = JSON.parse(localStorage.getItem("usuarioLogueado"));
-      if (usuarioLogueado) {
-        mostrarPanel(usuarioLogueado);
+      const loggedUser = JSON.parse(localStorage.getItem("usuarioLogueado"));
+      if (loggedUser) {
+        showPanel(loggedUser);
       } else {
         document.getElementById("form-login").style.display = "block";
       }
@@ -292,24 +287,24 @@
 
     document.getElementById("form-login").addEventListener("submit", function(e) {
       e.preventDefault();
-      const correo = document.getElementById("loginCorreo").value.trim();
+      const email = document.getElementById("loginCorreo").value.trim();
       const password = document.getElementById("loginPassword").value;
-      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-      const usuario = usuarios.find(u => u.correo === correo && u.password === password);
+      const users = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const user = users.find(u => u.correo === email && u.password === password);
 
-      if (usuario) {
-        localStorage.setItem("usuarioLogueado", JSON.stringify(usuario));
+      if (user) {
+        localStorage.setItem("usuarioLogueado", JSON.stringify(user));
         window.location.href = "panel.html";
       } else {
-        alert("Correo o contraseña incorrectos.");
+        alert("Incorrect email or password.");
       }
     });
 
-    function mostrarPanel(usuario) {
+    function showPanel(user) {
       document.getElementById("form-login").style.display = "none";
       document.getElementById("panel-usuario").style.display = "block";
       document.getElementById("form-registro").style.display = "none";
-      document.getElementById("nombreUsuario").textContent = usuario.nombre;
+      document.getElementById("nombreUsuario").textContent = user.nombre;
     }
 
     function cerrarSesion() {
@@ -320,40 +315,40 @@
     document.getElementById("form-registro").addEventListener("submit", function (e) {
       e.preventDefault();
 
-      const nombre = document.getElementById("nombre").value.trim();
-      const correo = document.getElementById("correo").value.trim();
+      const name = document.getElementById("nombre").value.trim();
+      const email = document.getElementById("correo").value.trim();
       const password = document.getElementById("password").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
-      const codigoReferido = document.getElementById("codigoReferido").value.trim();
-      const linea = document.querySelector('input[name="linea"]:checked')?.value;
+      const referralCode = document.getElementById("codigoReferido").value.trim();
+      const line = document.querySelector('input[name="linea"]:checked')?.value;
 
       if (password !== confirmPassword) {
-        alert("Las contraseñas no coinciden.");
+        alert("Passwords do not match.");
         return;
       }
 
-      const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
 
-      const usuario = {
-        nombre,
-        correo,
+      const user = {
+        nombre: name,
+        correo: email,
         password,
-        codigo,
-        referidoPor: codigoReferido || null,
-        linea,
+        codigo: code,
+        referidoPor: referralCode || null,
+        linea: line,
       };
 
-      const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const users = JSON.parse(localStorage.getItem("usuarios") || "[]");
 
-      if (usuarios.find(u => u.correo === correo)) {
-        alert("Este correo ya está registrado.");
+      if (users.find(u => u.correo === email)) {
+        alert("This email is already registered.");
         return;
       }
 
-      usuarios.push(usuario);
-      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+      users.push(user);
+      localStorage.setItem("usuarios", JSON.stringify(users));
 
-      alert(`Registro exitoso. Tu código de referido es: ${codigo}`);
+      alert(`Registration successful. Your referral code is: ${code}`);
       this.reset();
     });
   </script>
