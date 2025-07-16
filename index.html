@@ -177,8 +177,7 @@
 </head>
 <body>
 
-  <!-- Código original intacto... -->
-
+  <!-- NUEVO: Selector de idioma -->
   <div style="text-align: center; margin: 1rem 0;">
     <label for="languageSelect">🌐 Idioma / Language:</label>
     <select id="languageSelect">
@@ -187,11 +186,15 @@
     </select>
   </div>
 
+  <!-- NUEVO: Fecha/Hora y Divisas -->
   <div style="text-align: center; margin: 1rem 0;">
     <p id="fechaHora"></p>
     <p id="preciosDivisas"></p>
   </div>
 
+  <!-- Resto del contenido original (formularios, moneda, etc.) -->
+
+  <!-- NUEVO: Script para idioma, fecha/hora y divisas -->
   <script>
     function actualizarFechaHora() {
       const lang = document.getElementById("languageSelect").value;
@@ -222,14 +225,17 @@
       }
     }
 
+    // Actualizar cada 5 minutos
     setInterval(() => {
       actualizarFechaHora();
       actualizarDivisas();
     }, 300000);
 
+    // Inicial
     actualizarFechaHora();
     actualizarDivisas();
 
+    // Cambiar idioma
     document.getElementById("languageSelect").addEventListener("change", () => {
       actualizarFechaHora();
       actualizarDivisas();
