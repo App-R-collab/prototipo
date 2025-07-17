@@ -21,7 +21,6 @@
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      position: relative;
     }
     input, select {
       width: 100%;
@@ -46,7 +45,6 @@
     }
     #registroCampos {
       display: none;
-      position: relative;
     }
     .link-btn {
       background: none;
@@ -56,20 +54,6 @@
       text-decoration: underline;
       margin-top: 1rem;
     }
-    .ocultar-btn {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background: none;
-      border: none;
-      color: #888;
-      font-size: 0.9rem;
-      cursor: pointer;
-      padding: 0.5rem;
-    }
-    .ocultar-btn:hover {
-      color: #000;
-    }
   </style>
 </head>
 <body>
@@ -78,4 +62,105 @@
 
   <div class="form-container" id="registroForm">
     <!-- Login -->
-    <input type="email" id=
+    <input type="email" id="loginCorreo" placeholder="Correo para ingresar">
+    <input type="password" id="loginPassword" placeholder="Contraseña">
+    <button onclick="login()">Iniciar Sesión</button>
+
+    <!-- Botón para mostrar el registro -->
+    <button class="link-btn" onclick="mostrarRegistro()">Registrarse gratis</button>
+
+    <!-- Formulario de registro oculto -->
+    <div id="registroCampos">
+      <hr />
+      <input type="text" id="nombre" placeholder="Nombre completo" required>
+      <input type="email" id="correo" placeholder="Correo electrónico" required>
+      <input type="password" id="password" placeholder="Contraseña" required>
+      <input type="text" id="licencia" placeholder="Número de licencia" required>
+      <select id="vehiculo">
+        <option value="">Tipo de vehículo</option>
+        <option value="Moto">Moto</option>
+        <option value="Carro">Carro</option>
+        <option value="Camioneta">Camioneta</option>
+      </select>
+      <input type="file" id="documento" accept="image/*,application/pdf">
+      <button onclick="registrar()">Registrarse</button>
+    </div>
+  </div>
+
+  <!-- Panel de bienvenida -->
+  <div id="panel">
+    <h2>Bienvenido, <span id="nombreConductor"></span></h2>
+    <button onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+
+  <script>
+    function registrar() {
+      const nombre = document.getElementById("nombre").value;
+      const correo = document.getElementById("correo").value;
+      const password = document.getElementById("password").value;
+      const licencia = document.getElementById("licencia").value;
+      const vehiculo = document.getElementById("vehiculo").value;
+
+      const conductores = JSON.parse(localStorage.getItem("conductores") || "[]");
+
+      if (conductores.find(c => c.correo === correo)) {
+        alert("Este correo ya está registrado.");
+        return;
+      }
+
+      conductores.push({ nombre, correo, password, licencia, vehiculo });
+      localStorage.setItem("conductores", JSON.stringify(conductores));
+
+      alert("Registro exitoso. Ahora puedes iniciar sesión.");
+
+      // Limpiar formulario
+      document.getElementById("nombre").value = "";
+      document.getElementById("correo").value = "";
+      document.getElementById("password").value = "";
+      document.getElementById("licencia").value = "";
+      document.getElementById("vehiculo").value = "";
+      document.getElementById("documento").value = "";
+
+      // Ocultar formulario de registro
+      document.getElementById("registroCampos").style.display = "none";
+    }
+
+    function login() {
+      const correo = document.getElementById("loginCorreo").value;
+      const password = document.getElementById("loginPassword").value;
+      const conductores = JSON.parse(localStorage.getItem("conductores") || "[]");
+      const conductor = conductores.find(c => c.correo === correo && c.password === password);
+
+      if (conductor) {
+        localStorage.setItem("conductorActivo", JSON.stringify(conductor));
+        mostrarPanel(conductor);
+      } else {
+        alert("Correo o contraseña incorrectos.");
+      }
+    }
+
+    function mostrarPanel(conductor) {
+      document.getElementById("registroForm").style.display = "none";
+      document.getElementById("panel").style.display = "block";
+      document.getElementById("nombreConductor").textContent = conductor.nombre;
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem("conductorActivo");
+      location.reload();
+    }
+
+    function mostrarRegistro() {
+      document.getElementById("registroCampos").style.display = "block";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const activo = JSON.parse(localStorage.getItem("conductorActivo"));
+      if (activo) {
+        mostrarPanel(activo);
+      }
+    });
+  </script>
+
+</body>
+</html>
