@@ -21,6 +21,7 @@
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      position: relative;
     }
     input, select {
       width: 100%;
@@ -45,6 +46,7 @@
     }
     #registroCampos {
       display: none;
+      position: relative;
     }
     .link-btn {
       background: none;
@@ -54,6 +56,20 @@
       text-decoration: underline;
       margin-top: 1rem;
     }
+    .ocultar-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+    .ocultar-btn:hover {
+      color: #000;
+    }
   </style>
 </head>
 <body>
@@ -62,23 +78,4 @@
 
   <div class="form-container" id="registroForm">
     <!-- Login -->
-    <input type="email" id="loginCorreo" placeholder="Correo para ingresar">
-    <input type="password" id="loginPassword" placeholder="Contraseña">
-    <button onclick="login()">Iniciar Sesión</button>
-
-    <!-- Botón para mostrar el registro -->
-    <button class="link-btn" onclick="mostrarRegistro()">Registrarse gratis</button>
-
-    <!-- Formulario de registro oculto -->
-    <div id="registroCampos">
-      <hr />
-      <input type="text" id="nombre" placeholder="Nombre completo" required>
-      <input type="email" id="correo" placeholder="Correo electrónico" required>
-      <input type="password" id="password" placeholder="Contraseña" required>
-      <input type="text" id="licencia" placeholder="Número de licencia" required>
-      <select id="vehiculo">
-        <option value="">Tipo de vehículo</option>
-        <option value="Moto">Moto</option>
-        <option value="Carro">Carro</option>
-        <option value="Camioneta">Camioneta</option>
-      </
+    <input type="email" id=
