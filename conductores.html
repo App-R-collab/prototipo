@@ -21,6 +21,7 @@
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      position: relative;
     }
     input, select {
       width: 100%;
@@ -45,6 +46,7 @@
     }
     #registroCampos {
       display: none;
+      position: relative;
     }
     .link-btn {
       background: none;
@@ -53,6 +55,20 @@
       cursor: pointer;
       text-decoration: underline;
       margin-top: 1rem;
+    }
+    .ocultar-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+    .ocultar-btn:hover {
+      color: #000;
     }
   </style>
 </head>
@@ -67,10 +83,11 @@
     <button onclick="login()">Iniciar Sesión</button>
 
     <!-- Botón para mostrar el registro -->
-    <button class="link-btn" onclick="mostrarRegistro()">Registrarse gratis</button>
+    <button id="btnMostrarRegistro" class="link-btn" onclick="mostrarRegistro()">Registrarse gratis</button>
 
     <!-- Formulario de registro oculto -->
     <div id="registroCampos">
+      <button class="ocultar-btn" onclick="ocultarRegistro()">✖ Ocultar</button>
       <hr />
       <input type="text" id="nombre" placeholder="Nombre completo" required>
       <input type="email" id="correo" placeholder="Correo electrónico" required>
@@ -121,8 +138,7 @@
       document.getElementById("vehiculo").value = "";
       document.getElementById("documento").value = "";
 
-      // Ocultar formulario de registro
-      document.getElementById("registroCampos").style.display = "none";
+      ocultarRegistro(); // Oculta después de registrar
     }
 
     function login() {
@@ -152,6 +168,12 @@
 
     function mostrarRegistro() {
       document.getElementById("registroCampos").style.display = "block";
+      document.getElementById("btnMostrarRegistro").style.display = "none";
+    }
+
+    function ocultarRegistro() {
+      document.getElementById("registroCampos").style.display = "none";
+      document.getElementById("btnMostrarRegistro").style.display = "inline-block";
     }
 
     document.addEventListener("DOMContentLoaded", () => {
