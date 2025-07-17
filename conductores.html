@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registro de Conductores</title>
+  <title>Iniciar Sesión</title>
   <style>
     body {
       font-family: sans-serif;
@@ -43,36 +43,49 @@
       text-align: center;
       margin-top: 2rem;
     }
-    hr {
-      margin: 2rem 0;
+    #registroCampos {
+      display: none;
+      margin-top: 1rem;
+    }
+    #registroBtn {
+      background: transparent;
+      color: #2980b9;
+      border: none;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
 
-  <h1>Registro de Conductores</h1>
+  <h1>Iniciar Sesión</h1>
 
   <div class="form-container" id="registroForm">
-    <!-- Inicio de sesión (MOVIDO ARRIBA) -->
+    <!-- Inicio de sesión -->
     <input type="email" id="loginCorreo" placeholder="Correo para ingresar">
     <input type="password" id="loginPassword" placeholder="Contraseña">
     <button onclick="login()">Iniciar Sesión</button>
 
-    <hr />
+    <!-- Botón para mostrar el formulario de registro -->
+    <button id="registroBtn" onclick="mostrarRegistro()">Registrarse gratis</button>
 
-    <!-- Registro (MOVIDO ABAJO) -->
-    <input type="text" id="nombre" placeholder="Nombre completo" required>
-    <input type="email" id="correo" placeholder="Correo electrónico" required>
-    <input type="password" id="password" placeholder="Contraseña" required>
-    <input type="text" id="licencia" placeholder="Número de licencia" required>
-    <select id="vehiculo">
-      <option value="">Tipo de vehículo</option>
-      <option value="Moto">Moto</option>
-      <option value="Carro">Carro</option>
-      <option value="Camioneta">Camioneta</option>
-    </select>
-    <input type="file" id="documento" accept="image/*,application/pdf">
-    <button onclick="registrar()">Registrarse</button>
+    <!-- Registro oculto inicialmente -->
+    <div id="registroCampos">
+      <hr />
+      <input type="text" id="nombre" placeholder="Nombre completo" required>
+      <input type="email" id="correo" placeholder="Correo electrónico" required>
+      <input type="password" id="password" placeholder="Contraseña" required>
+      <input type="text" id="licencia" placeholder="Número de licencia" required>
+      <select id="vehiculo">
+        <option value="">Tipo de vehículo</option>
+        <option value="Moto">Moto</option>
+        <option value="Carro">Carro</option>
+        <option value="Camioneta">Camioneta</option>
+      </select>
+      <input type="file" id="documento" accept="image/*,application/pdf">
+      <button onclick="registrar()">Registrarse</button>
+    </div>
   </div>
 
   <div id="panel">
@@ -99,41 +112,4 @@
       localStorage.setItem("conductores", JSON.stringify(conductores));
 
       alert("Registro exitoso. Ahora puedes iniciar sesión.");
-      document.getElementById("registroForm").reset();
-    }
-
-    function login() {
-      const correo = document.getElementById("loginCorreo").value;
-      const password = document.getElementById("loginPassword").value;
-      const conductores = JSON.parse(localStorage.getItem("conductores") || "[]");
-      const conductor = conductores.find(c => c.correo === correo && c.password === password);
-
-      if (conductor) {
-        localStorage.setItem("conductorActivo", JSON.stringify(conductor));
-        mostrarPanel(conductor);
-      } else {
-        alert("Correo o contraseña incorrectos.");
-      }
-    }
-
-    function mostrarPanel(conductor) {
-      document.getElementById("registroForm").style.display = "none";
-      document.getElementById("panel").style.display = "block";
-      document.getElementById("nombreConductor").textContent = conductor.nombre;
-    }
-
-    function cerrarSesion() {
-      localStorage.removeItem("conductorActivo");
-      location.reload();
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const activo = JSON.parse(localStorage.getItem("conductorActivo"));
-      if (activo) {
-        mostrarPanel(activo);
-      }
-    });
-  </script>
-
-</body>
-</html>
+      document.getElementById("registroForm").reset
