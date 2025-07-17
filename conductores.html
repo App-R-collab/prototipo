@@ -43,6 +43,9 @@
       text-align: center;
       margin-top: 2rem;
     }
+    hr {
+      margin: 2rem 0;
+    }
   </style>
 </head>
 <body>
@@ -50,6 +53,14 @@
   <h1>Registro de Conductores</h1>
 
   <div class="form-container" id="registroForm">
+    <!-- Inicio de sesión (MOVIDO ARRIBA) -->
+    <input type="email" id="loginCorreo" placeholder="Correo para ingresar">
+    <input type="password" id="loginPassword" placeholder="Contraseña">
+    <button onclick="login()">Iniciar Sesión</button>
+
+    <hr />
+
+    <!-- Registro (MOVIDO ABAJO) -->
     <input type="text" id="nombre" placeholder="Nombre completo" required>
     <input type="email" id="correo" placeholder="Correo electrónico" required>
     <input type="password" id="password" placeholder="Contraseña" required>
@@ -62,10 +73,6 @@
     </select>
     <input type="file" id="documento" accept="image/*,application/pdf">
     <button onclick="registrar()">Registrarse</button>
-    <hr />
-    <input type="email" id="loginCorreo" placeholder="Correo para ingresar">
-    <input type="password" id="loginPassword" placeholder="Contraseña">
-    <button onclick="login()">Iniciar Sesión</button>
   </div>
 
   <div id="panel">
@@ -120,7 +127,6 @@
       location.reload();
     }
 
-    // Mostrar panel si ya está logueado
     document.addEventListener("DOMContentLoaded", () => {
       const activo = JSON.parse(localStorage.getItem("conductorActivo"));
       if (activo) {
