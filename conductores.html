@@ -21,7 +21,6 @@
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      position: relative;
     }
     input, select {
       width: 100%;
@@ -46,7 +45,6 @@
     }
     #registroCampos {
       display: none;
-      position: relative;
     }
     .link-btn {
       background: none;
@@ -57,15 +55,15 @@
       margin-top: 1rem;
     }
     .ocultar-btn {
-      position: absolute;
-      top: 0;
-      right: 0;
+      display: block;
       background: none;
       border: none;
       color: #888;
       font-size: 0.9rem;
       cursor: pointer;
-      padding: 0.5rem;
+      margin-left: auto;
+      margin-bottom: 0.5rem;
+      text-align: right;
     }
     .ocultar-btn:hover {
       color: #000;
@@ -87,8 +85,8 @@
 
     <!-- Formulario de registro oculto -->
     <div id="registroCampos">
-      <button class="ocultar-btn" onclick="ocultarRegistro()">✖ Ocultar</button>
       <hr />
+      <button class="ocultar-btn" onclick="ocultarRegistro()">✖ Ocultar</button>
       <input type="text" id="nombre" placeholder="Nombre completo" required>
       <input type="email" id="correo" placeholder="Correo electrónico" required>
       <input type="password" id="password" placeholder="Contraseña" required>
@@ -172,17 +170,4 @@
     }
 
     function ocultarRegistro() {
-      document.getElementById("registroCampos").style.display = "none";
-      document.getElementById("btnMostrarRegistro").style.display = "inline-block";
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const activo = JSON.parse(localStorage.getItem("conductorActivo"));
-      if (activo) {
-        mostrarPanel(activo);
-      }
-    });
-  </script>
-
-</body>
-</html>
+      document.ge
